@@ -17,7 +17,7 @@
 > npm install
 
 ## Step5
-> npm install hexo-deployer-git –save
+> npm install hexo-deployer-git --save
 
 ## 最后，素质四连完事
 > git add ./
