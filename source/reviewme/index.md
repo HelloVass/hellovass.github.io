@@ -19,7 +19,7 @@ type: "reviewme"
 
 - 模仿**QQ输入法颜文字模块**实现的[FaceTextLayout](https://github.com/HelloVass/FaceTextLayout)
 - 基于原生**VideoView**实现的[悬浮播放器](https://github.com/HelloVass/HVMediaPlayer)
-- [SmartKeyBoardManager]，fix**表情键盘和系统软键盘切换时发生闪烁bug**
+- [SmartKeyBoardManager](https://github.com/HelloVass/SmartKeyboardManager)，fix**表情键盘和系统软键盘切换时发生闪烁bug**
 - [一个下雪动画](https://github.com/HelloVass/SnowingView)
 - [meizhi](https://github.com/HelloVass/meizhi)，gank.io第三方客户端，使用kotlin实现 
 - [DynamicShareView](https://github.com/HelloVass/DynamicShareView)，动态生成分享图片，使用kotlin实现
