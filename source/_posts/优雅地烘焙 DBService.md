@@ -23,13 +23,13 @@ tags:
 
 ### 新的类图，更强的封装
 
-![类图](http://7xsq1h.com1.z0.glb.clouddn.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%B1%BB%E5%9B%BE.png)
+![类图](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%B1%BB%E5%9B%BE.png)
 
 ### 目录结构看起来是这样的
 
 
 
-![目录结构](http://7xsq1h.com1.z0.glb.clouddn.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%9B%BE.png)
+![目录结构](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%9B%BE.png)
 
 
 

@@ -26,7 +26,7 @@ tags:
 - **头像**
 - **昵称**。
 
-![UserInfo 组件](http://7xsq1h.com1.z0.glb.clouddn.com/UserInfo%20%E7%BB%84%E4%BB%B6.png)
+![UserInfo 组件](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/UserInfo%20%E7%BB%84%E4%BB%B6.png)
 
 
 
@@ -310,7 +310,3 @@ data() {
         }
       };
 ```
-
-## 腾讯云社区
-
-我的博客即将搬运同步至腾讯云+社区，邀请大家一同入驻：https://cloud.tencent.com/developer/support-plan?invite_code=20kxkeg4qfhck

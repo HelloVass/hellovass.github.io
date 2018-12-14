@@ -15,7 +15,7 @@ tags:
 
 来自《Head First 设计模式》抽象工厂一节中**披萨店卖披萨**的启发，我们也将 `Retrofit` 看做一样商品，来设计它。
 
-![依赖倒置](http://7xsq1h.com1.z0.glb.clouddn.com/%E4%BE%9D%E8%B5%96%E5%80%92%E7%BD%AE.png)
+![依赖倒置](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E4%BE%9D%E8%B5%96%E5%80%92%E7%BD%AE.png)
 
 <!-- more -->
 
