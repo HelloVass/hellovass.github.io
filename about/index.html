@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="写在最前 不再回头看与喜欢的人走过的地方以及那时看见的景色把走过看过后的回忆抛在脑后，全力飞奔会有什么在前方等着我呢？…  letter song  关于我小时候喜欢摆弄各种机械，制作电磁铁之类的小玩儿意。大学学的是软件工程，喜欢这个纷繁的编程世界，喜欢寻找复杂技术背后隐喻的设计哲学。 略微了解 WEB的世界，会一点点儿 Android 开发。 喜欢 ACG 文化，喜欢各种和科幻相关的书和电影。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="警察蜀黍，就是这个人">
+<meta property="og:url" content="http://yoursite.com/about/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="写在最前 不再回头看与喜欢的人走过的地方以及那时看见的景色把走过看过后的回忆抛在脑后，全力飞奔会有什么在前方等着我呢？…  letter song  关于我小时候喜欢摆弄各种机械，制作电磁铁之类的小玩儿意。大学学的是软件工程，喜欢这个纷繁的编程世界，喜欢寻找复杂技术背后隐喻的设计哲学。 略微了解 WEB的世界，会一点点儿 Android 开发。 喜欢 ACG 文化，喜欢各种和科幻相关的书和电影。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-21T13:12:12.159Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="警察蜀黍，就是这个人">
+<meta name="twitter:description" content="写在最前 不再回头看与喜欢的人走过的地方以及那时看见的景色把走过看过后的回忆抛在脑后，全力飞奔会有什么在前方等着我呢？…  letter song  关于我小时候喜欢摆弄各种机械，制作电磁铁之类的小玩儿意。大学学的是软件工程，喜欢这个纷繁的编程世界，喜欢寻找复杂技术背后隐喻的设计哲学。 略微了解 WEB的世界，会一点点儿 Android 开发。 喜欢 ACG 文化，喜欢各种和科幻相关的书和电影。">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/about/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>警察蜀黍，就是这个人 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HelloVass' blog site</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">案件类型</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about menu-item-active">
+    <a href="/about/" rel="section">╭( ′• o •′ )╭☞警察叔叔！就是这个人！</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">犯罪过程</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">作案手法</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-reviewme">
+    <a href="/reviewme/" rel="section">简历</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+
+  
+
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+    
+    
+    <div class="post-block page">
+      <header class="post-header">
+
+<h1 class="post-title" itemprop="name headline">警察蜀黍，就是这个人</h1>
+
+<div class="post-meta">
+  
+  
+
+
+
+</div>
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+        
+        
+          <h2 id="写在最前"><a href="#写在最前" class="headerlink" title="写在最前"></a>写在最前</h2><blockquote>
+<p>不再回头看与喜欢的人走过的地方<br>以及那时看见的景色<br>把走过看过后的回忆<br>抛在脑后，全力飞奔<br>会有什么在前方等着我呢？<br>…</p>
+</blockquote>
+<h2 id="letter-song"><a href="#letter-song" class="headerlink" title="letter song"></a>letter song</h2><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="http://music.163.com/outchain/player?type=2&id=33991852&auto=0&height=66"></iframe>
+
+<h2 id="关于我"><a href="#关于我" class="headerlink" title="关于我"></a>关于我</h2><p>小时候喜欢摆弄各种机械，制作电磁铁之类的小玩儿意。大学学的是软件工程，喜欢这个纷繁的编程世界，喜欢寻找复杂技术背后隐喻的设计哲学。</p>
+<p>略微了解 WEB的世界，会一点点儿 Android 开发。</p>
+<p>喜欢 ACG 文化，喜欢各种和科幻相关的书和电影。</p>
+<p>喜欢的科幻电影：</p>
+<p>1.《星际穿越》<br>2.《盗梦空间》<br>3.《云图》</p>
+<p>喜欢的书：</p>
+<p>1.《三体系列》<br>2.《球状闪电》<br>3.《白夜行》<br>4.《嫌疑人X的献身》</p>
+<p>GitHub：<a href="https://github.com/hellovass" target="_blank" rel="noopener">https://github.com/hellovass</a></p>
+<p>如果你对我感兴趣，欢迎移步到我的<a href="http://hellovass.info/reviewme/" target="_blank" rel="noopener">简历</a>了解更多。</p>
+<p>目前在杭州，联系 Email：<a href="mailto:hellova33@gmail.com" target="_blank" rel="noopener">hellova33@gmail.com</a></p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><blockquote>
+<p>如果现在幸福的话<br>有回想起来那个时候的我的事情吗？<br>虽然在那里的是因为艰辛的事情而哭泣的我<br>请把那些眼泪变成温柔的回忆吧<br>…</p>
+</blockquote>
+
+        
+      </div>
+      
+      
+      
+    </div>
+    
+
+
+
+    
+    
+    
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://7xsq1h.com1.z0.glb.clouddn.com/avatar_hellovass.jpeg"
+                alt="HelloVass" />
+            
+              <p class="site-author-name" itemprop="name">HelloVass</p>
+              <p class="site-description motion-element" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/HelloVass" target="_blank" title="GitHub">GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.jianshu.com/users/bf37dbaf04fd/latest_articles" target="_blank" title="jianshu">jianshu</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:hellova33@gmail.com" target="_blank" title="E-Mail">E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                已经完成的交♂易
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.bellorchid.info/" title="黑基" target="_blank">黑基</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tecotaku.cn/" title="gay哈" target="_blank">gay哈</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://geminiwen.com/" title="阿温" target="_blank">阿温</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.showonne.com/" title="showonne" target="_blank">showonne</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/kevinjqy" title="古风" target="_blank">古风</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://fogdong.github.io/" title="雾雾" target="_blank">雾雾</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mikumiku.com.cn" title="xana" target="_blank">xana</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mephis.me" title="东东" target="_blank">东东</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://cheri.love/" title="枫祺玥" target="_blank">枫祺玥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jianshu.com/u/6b372d09b617" title="右右" target="_blank">右右</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.harbon.link" title="川神" target="_blank">川神</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.licrafter.com/" title="祥哥" target="_blank">祥哥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://puppetkant.cn/" title="小木偶" target="_blank">小木偶</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最前"><span class="nav-number">1.</span> <span class="nav-text">写在最前</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#letter-song"><span class="nav-number">2.</span> <span class="nav-text">letter song</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于我"><span class="nav-number">3.</span> <span class="nav-text">关于我</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最后"><span class="nav-number">4.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

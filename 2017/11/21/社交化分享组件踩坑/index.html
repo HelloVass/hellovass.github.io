@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="issue:微信登录失败问题是这样的，项目里的社交化分享是基于 UMShare 封装成的一个 ShareLib module，为了让这个 module 对调用者说更透明，我将 WXEntryActivity 的申明从 App module 移动到了 ShareLib module里， AndroidMainifest.xml 中关于 WXEntryActivity 的申明如下：  同时把 wxap">
+<meta name="keywords" content="Android,踩坑之旅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="社交化分享组件踩坑">
+<meta property="og:url" content="http://yoursite.com/2017/11/21/社交化分享组件踩坑/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="issue:微信登录失败问题是这样的，项目里的社交化分享是基于 UMShare 封装成的一个 ShareLib module，为了让这个 module 对调用者说更透明，我将 WXEntryActivity 的申明从 App module 移动到了 ShareLib module里， AndroidMainifest.xml 中关于 WXEntryActivity 的申明如下：  同时把 wxap">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/ShareLibrary%E7%9A%84%20AndroidMainifest%20%E9%87%8C%E7%9A%84%E7%94%B3%E6%98%8E.png">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%A0%B9%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84wxapi%E7%9B%AE%E5%BD%95.png">
+<meta property="og:updated_time" content="2019-10-21T13:12:12.157Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="社交化分享组件踩坑">
+<meta name="twitter:description" content="issue:微信登录失败问题是这样的，项目里的社交化分享是基于 UMShare 封装成的一个 ShareLib module，为了让这个 module 对调用者说更透明，我将 WXEntryActivity 的申明从 App module 移动到了 ShareLib module里， AndroidMainifest.xml 中关于 WXEntryActivity 的申明如下：  同时把 wxap">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/ShareLibrary%E7%9A%84%20AndroidMainifest%20%E9%87%8C%E7%9A%84%E7%94%B3%E6%98%8E.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/11/21/社交化分享组件踩坑/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>社交化分享组件踩坑 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HelloVass' blog site</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">案件类型</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">╭( ′• o •′ )╭☞警察叔叔！就是这个人！</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">犯罪过程</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">作案手法</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-reviewme">
+    <a href="/reviewme/" rel="section">简历</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/21/社交化分享组件踩坑/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+      <meta itemprop="image" content="http://7xsq1h.com1.z0.glb.clouddn.com/avatar_hellovass.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">社交化分享组件踩坑
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-11-21 12:41:38" itemprop="dateCreated datePublished" datetime="2017-11-21T12:41:38+08:00">2017-11-21</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-10-21 21:12:12" itemprop="dateModified" datetime="2019-10-21T21:12:12+08:00">2019-10-21</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="issue-微信登录失败"><a href="#issue-微信登录失败" class="headerlink" title="issue:微信登录失败"></a>issue:微信登录失败</h2><p>问题是这样的，项目里的社交化分享是基于 <code>UMShare</code> 封装成的一个 <code>ShareLib module</code>，为了让这个 <code>module</code> 对调用者说更<strong>透明</strong>，我将 <code>WXEntryActivity</code> 的<strong>申明</strong>从 <code>App module</code> 移动到了 <code>ShareLib module</code>里， <code>AndroidMainifest.xml</code> 中关于 <code>WXEntryActivity</code> 的<strong>申明</strong>如下：</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/ShareLibrary%E7%9A%84%20AndroidMainifest%20%E9%87%8C%E7%9A%84%E7%94%B3%E6%98%8E.png" alt="ShareLibrary的 AndroidMainifest 里的申明"></p>
+<p>同时把 <code>wxapi</code> 目录（包含 <code>WXEntryActivity.java</code> 也一并转移，根目录下的 <code>wxapi</code> 目录如图：</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%A0%B9%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84wxapi%E7%9B%AE%E5%BD%95.png" alt="根目录下的wxapi目录"></p>
+<p><code>App module</code> 确实清爽了不少。但是，这么做会引发怎样的问题呢？</p>
+<a id="more"></a>
+<h2 id="目前发现的问题"><a href="#目前发现的问题" class="headerlink" title="目前发现的问题"></a>目前发现的问题</h2><ul>
+<li>用户点击微信登录总是失败，无法正常跳转到微信授权页面</li>
+<li>用户无法使用微信分享</li>
+<li>以上两种情况都会抛出 NameNotFoundException</li>
+</ul>
+<h2 id="冷静分析"><a href="#冷静分析" class="headerlink" title="冷静分析"></a>冷静分析</h2><h3 id="友盟的文档"><a href="#友盟的文档" class="headerlink" title="友盟的文档"></a>友盟的文档</h3><p><a href="http://dev.umeng.com/social/android/quick-integration#1_3_3" target="_blank" rel="noopener">配置Android Mainifest XML</a>，文档里明确指出是需要在 <code>AndroidMainifest</code> 里申明 <code>WXEntryActivity</code>， 并在<strong>根目录</strong>下新建一个 <code>wxapi</code> 包，然后将 <code>WXEntryActivity</code> 放在里面。但说如果把这些东西放到 <code>module</code>项目里会如何，友盟并没有说，emmmm…</p>
+<h3 id="遇事不觉-Debug"><a href="#遇事不觉-Debug" class="headerlink" title="遇事不觉 Debug"></a>遇事不觉 Debug</h3><p>进入 <code>UMShare SDK</code> 的源码里探索了一番后，将<strong>错误</strong>锁定在了 <code>checkWxBySelf</code> 这个静态方法上，该方法声明如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">checkWxBySelf</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">  	<span class="comment">// 获取包名</span></span><br><span class="line">    String pkName = context.getPackageName();</span><br><span class="line">  	<span class="comment">// 获取类名</span></span><br><span class="line">    String classPath = pkName + <span class="string">".wxapi.WXEntryActivity"</span>;</span><br><span class="line">    PackageInfo packageInfo = <span class="keyword">null</span>;</span><br><span class="line">    PackageManager packageManager = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      packageManager = context.getPackageManager();</span><br><span class="line">      packageInfo = packageManager.getPackageInfo(pkName, <span class="number">64</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NameNotFoundException var8) &#123;</span><br><span class="line">      var8.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    String result = getSignatureDigest(packageInfo);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">// 1.通过全名加载 WXEntryActivity 类</span></span><br><span class="line">      Class&lt;?&gt; clz = Class.forName(classPath);</span><br><span class="line">      <span class="keyword">if</span>(clz == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"请检查微信后台注册签名："</span> + result.toLowerCase() + <span class="string">"\n"</span> + <span class="string">"包名："</span> + pkName + <span class="string">"\n"</span> + <span class="string">"没有配置微信回调activity或配置不正确"</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span>(Config.isUmengWx.booleanValue()) &#123;</span><br><span class="line">        <span class="keyword">if</span>(clz.getSuperclass() == <span class="keyword">null</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"WXEntryActivity配置不正确，您使用的是精简版，请使WXEntryActivity继承com.umeng.weixin.callback.WXCallbackActivity"</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!clz.getSuperclass().toString().contains(<span class="string">"com.umeng.weixin"</span>)) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"WXEntryActivity配置不正确，您使用的是精简版，请使WXEntryActivity继承com.umeng.weixin.callback.WXCallbackActivity"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(clz.getSuperclass() == <span class="keyword">null</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"WXEntryActivity配置不正确，您使用的是完整版，请使WXEntryActivity继承com.umeng.socialize.weixin.view.WXCallbackActivity"</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!clz.getSuperclass().toString().contains(<span class="string">"com.umeng.socialize"</span>)) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="string">"WXEntryActivity配置不正确，您使用的是完整版，请使WXEntryActivity继承com.umeng.socialize.weixin.view.WXCallbackActivity"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException var9) &#123;</span><br><span class="line">      var9.printStackTrace();</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"请检查微信后台注册签名："</span> + result.toLowerCase() + <span class="string">"\n"</span> + <span class="string">"包名："</span> + pkName + <span class="string">"\n"</span> + <span class="string">"没有配置微信回调activity或配置不正确"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      ComponentName componentName = <span class="keyword">new</span> ComponentName(context.getPackageName(), classPath);</span><br><span class="line">      <span class="comment">// 2.根据指定的组件，获取 ActivityInfo 信息</span></span><br><span class="line">      packageManager.getActivityInfo(componentName, <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"请检查微信后台注册签名："</span> + result.toLowerCase() + <span class="string">"\n"</span> + <span class="string">"包名："</span> + pkName + <span class="string">"\n"</span> + <span class="string">"Activity微信配置正确"</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NameNotFoundException var7) &#123;</span><br><span class="line">      var7.printStackTrace();</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"请检查微信后台注册签名："</span> + result.toLowerCase() + <span class="string">"\n"</span> + <span class="string">"包名："</span> + pkName + <span class="string">"\n"</span> + <span class="string">"没有配置微信回调activity没有在Manifest中配置"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>注释里已经写了两个可能抛出异常的地方，和 packageName 都有关系，也就是说我们能否正确获取 packageName 直接影响到能否正常使用 UMShare SDK 的功能！很显然，我们的 <code>App Module</code> 里并没有对应的 WXEntryActivity，所以执行到<strong>注释1</strong>的时候就会抛出异常了！</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>如果，我在 <code>App module</code> 里加上 wxapi 目录就 OK 了嘛？</p>
+<blockquote>
+<p>答案是no！还是会报错，只不过这次是在<strong>注释2</strong>抛出异常。</p>
+</blockquote>
+<p>又报错，这次明明加上了 wxapi 目录，已经可以找到 WXEntryActivity 了，为毛还是报错勒，emmm，再来冷静分析下吧。</p>
+<h3 id="多个-AndroidMainifest-的合并"><a href="#多个-AndroidMainifest-的合并" class="headerlink" title="多个 AndroidMainifest 的合并"></a>多个 AndroidMainifest 的合并</h3><blockquote>
+<p>关于多个 AndroidMainifest 的合并问题，可以去<a href="https://developer.android.com/studio/build/manifest-merge.html?hl=zh-cn" target="_blank" rel="noopener">Android 官网</a>补补课。</p>
+</blockquote>
+<p>因为我们的项目有多个 module，每个 module 都有自己的 AndroidMainifest，而最终，这些文件会被合并为一个文件。</p>
+<h3 id="还是看看-Merged-AndroidMainifest-吧"><a href="#还是看看-Merged-AndroidMainifest-吧" class="headerlink" title="还是看看 Merged AndroidMainifest 吧"></a>还是看看 Merged AndroidMainifest 吧</h3><h4 id="App-module-下的-merge-后的-AndroidMainifest-模样"><a href="#App-module-下的-merge-后的-AndroidMainifest-模样" class="headerlink" title="App module 下的 merge 后的 AndroidMainifest 模样"></a>App module 下的 merge 后的 AndroidMainifest 模样</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:name</span>=<span class="string">"info.hellovass.sharelib.wxapi.WXEntryActivity"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:configChanges</span>=<span class="string">"keyboardHidden|orientation|screenSize"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:exported</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:theme</span>=<span class="string">"@android:style/Theme.Translucent.NoTitleBar"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="ShareLib-module-下的-merge-后的-AndroidMainifest-模样："><a href="#ShareLib-module-下的-merge-后的-AndroidMainifest-模样：" class="headerlink" title="ShareLib module 下的 merge 后的 AndroidMainifest 模样："></a>ShareLib module 下的 merge 后的 AndroidMainifest 模样：</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:name</span>=<span class="string">"info.hellovass.sharelib.wxapi.WXEntryActivity"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:configChanges</span>=<span class="string">"keyboardHidden|orientation|screenSize"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:exported</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">android:theme</span>=<span class="string">"@android:style/Theme.Translucent.NoTitleBar"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p>因为我们并没有在 App module 下的 AndroidMainifest 对 WXEntryActivity 做任何申明，所以，merge 时会合并 ShareLib module 里的申明，于是，就变成了上面这样子。看到这里，我想事情也明了了，因为这种情况，<code>ShareLib module</code> 的包名和 <code>App module</code> 的包名是<strong>不一致</strong>的。简单来说，WXEntryActivity 并未注册到 AndroidMainifest 中，所以会在 <code>packageManager.getActivityInfo(component, 0)</code> 出抛出异常。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/踩坑之旅/" rel="tag"># 踩坑之旅</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/01/测试·守序中立/" rel="next" title="测试·守序中立">
+                <i class="fa fa-chevron-left"></i> 测试·守序中立
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/07/轲爷的减肥日记/" rel="prev" title="轲爷的减肥日记">
+                轲爷的减肥日记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://7xsq1h.com1.z0.glb.clouddn.com/avatar_hellovass.jpeg"
+                alt="HelloVass" />
+            
+              <p class="site-author-name" itemprop="name">HelloVass</p>
+              <p class="site-description motion-element" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/HelloVass" target="_blank" title="GitHub">GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.jianshu.com/users/bf37dbaf04fd/latest_articles" target="_blank" title="jianshu">jianshu</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:hellova33@gmail.com" target="_blank" title="E-Mail">E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                已经完成的交♂易
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.bellorchid.info/" title="黑基" target="_blank">黑基</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tecotaku.cn/" title="gay哈" target="_blank">gay哈</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://geminiwen.com/" title="阿温" target="_blank">阿温</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.showonne.com/" title="showonne" target="_blank">showonne</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/kevinjqy" title="古风" target="_blank">古风</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://fogdong.github.io/" title="雾雾" target="_blank">雾雾</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mikumiku.com.cn" title="xana" target="_blank">xana</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mephis.me" title="东东" target="_blank">东东</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://cheri.love/" title="枫祺玥" target="_blank">枫祺玥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jianshu.com/u/6b372d09b617" title="右右" target="_blank">右右</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.harbon.link" title="川神" target="_blank">川神</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.licrafter.com/" title="祥哥" target="_blank">祥哥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://puppetkant.cn/" title="小木偶" target="_blank">小木偶</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#issue-微信登录失败"><span class="nav-number">1.</span> <span class="nav-text">issue:微信登录失败</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目前发现的问题"><span class="nav-number">2.</span> <span class="nav-text">目前发现的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#冷静分析"><span class="nav-number">3.</span> <span class="nav-text">冷静分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#友盟的文档"><span class="nav-number">3.1.</span> <span class="nav-text">友盟的文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#遇事不觉-Debug"><span class="nav-number">3.2.</span> <span class="nav-text">遇事不觉 Debug</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#多个-AndroidMainifest-的合并"><span class="nav-number">4.1.</span> <span class="nav-text">多个 AndroidMainifest 的合并</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#还是看看-Merged-AndroidMainifest-吧"><span class="nav-number">4.2.</span> <span class="nav-text">还是看看 Merged AndroidMainifest 吧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#App-module-下的-merge-后的-AndroidMainifest-模样"><span class="nav-number">4.2.1.</span> <span class="nav-text">App module 下的 merge 后的 AndroidMainifest 模样</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ShareLib-module-下的-merge-后的-AndroidMainifest-模样："><span class="nav-number">4.2.2.</span> <span class="nav-text">ShareLib module 下的 merge 后的 AndroidMainifest 模样：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分析"><span class="nav-number">4.2.3.</span> <span class="nav-text">分析</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

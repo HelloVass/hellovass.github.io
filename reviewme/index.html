@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="简历姓名：陈 轲（HelloVass） 性别：男 email：hellova33@gmail.com 学校：杭州电子科技大学 专业：计算机软件工程 个人博客 GitHub  开源 模仿QQ输入法颜文字模块实现的FaceTextLayout 基于原生VideoView实现的悬浮播放器 SmartKeyBoardManager，fix表情键盘和系统软键盘切换时发生闪烁bug 一个下雪动画 meizhi">
+<meta property="og:type" content="website">
+<meta property="og:title" content="reviewme">
+<meta property="og:url" content="http://yoursite.com/reviewme/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="简历姓名：陈 轲（HelloVass） 性别：男 email：hellova33@gmail.com 学校：杭州电子科技大学 专业：计算机软件工程 个人博客 GitHub  开源 模仿QQ输入法颜文字模块实现的FaceTextLayout 基于原生VideoView实现的悬浮播放器 SmartKeyBoardManager，fix表情键盘和系统软键盘切换时发生闪烁bug 一个下雪动画 meizhi">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-21T13:12:12.159Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="reviewme">
+<meta name="twitter:description" content="简历姓名：陈 轲（HelloVass） 性别：男 email：hellova33@gmail.com 学校：杭州电子科技大学 专业：计算机软件工程 个人博客 GitHub  开源 模仿QQ输入法颜文字模块实现的FaceTextLayout 基于原生VideoView实现的悬浮播放器 SmartKeyBoardManager，fix表情键盘和系统软键盘切换时发生闪烁bug 一个下雪动画 meizhi">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/reviewme/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>reviewme | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HelloVass' blog site</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">案件类型</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">╭( ′• o •′ )╭☞警察叔叔！就是这个人！</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">犯罪过程</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">作案手法</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-reviewme menu-item-active">
+    <a href="/reviewme/" rel="section">简历</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+
+  
+
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+    
+    
+    <div class="post-block page">
+      <header class="post-header">
+
+<h1 class="post-title" itemprop="name headline">reviewme</h1>
+
+<div class="post-meta">
+  
+  
+
+
+
+</div>
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+        
+        
+          <h1 id="简历"><a href="#简历" class="headerlink" title="简历"></a>简历</h1><h2 id="姓名：陈-轲（HelloVass）"><a href="#姓名：陈-轲（HelloVass）" class="headerlink" title="姓名：陈 轲（HelloVass）"></a>姓名：陈 轲（HelloVass）</h2><ul>
+<li>性别：男</li>
+<li>email：<a href="mailto:hellova33@gmail.com" target="_blank" rel="noopener">hellova33@gmail.com</a></li>
+<li>学校：杭州电子科技大学</li>
+<li>专业：计算机软件工程</li>
+<li><a href="http://hellovass.info/" target="_blank" rel="noopener">个人博客</a></li>
+<li><a href="https://github.com/HelloVass" target="_blank" rel="noopener">GitHub</a></li>
+</ul>
+<h2 id="开源"><a href="#开源" class="headerlink" title="开源"></a>开源</h2><ul>
+<li>模仿<strong>QQ输入法颜文字模块</strong>实现的<a href="https://github.com/HelloVass/FaceTextLayout" target="_blank" rel="noopener">FaceTextLayout</a></li>
+<li>基于原生<strong>VideoView</strong>实现的<a href="https://github.com/HelloVass/HVMediaPlayer" target="_blank" rel="noopener">悬浮播放器</a></li>
+<li><a href="https://github.com/HelloVass/SmartKeyboardManager" target="_blank" rel="noopener">SmartKeyBoardManager</a>，fix<strong>表情键盘和系统软键盘切换时发生闪烁bug</strong></li>
+<li><a href="https://github.com/HelloVass/SnowingView" target="_blank" rel="noopener">一个下雪动画</a></li>
+<li><a href="https://github.com/HelloVass/meizhi" target="_blank" rel="noopener">meizhi</a>，gank.io第三方客户端，使用kotlin实现 </li>
+<li><a href="https://github.com/HelloVass/DynamicShareView" target="_blank" rel="noopener">DynamicShareView</a>，动态生成分享图片，使用kotlin实现</li>
+<li>基于mpvue封装的<a href="https://github.com/HelloVass/wx-skeleton" target="_blank" rel="noopener">小程序开发脚手架</a>(doing)</li>
+<li>…</li>
+</ul>
+<h2 id="技术栈"><a href="#技术栈" class="headerlink" title="技术栈"></a>技术栈</h2><ul>
+<li><p>Android（原生开发）</p>
+<ul>
+<li>熟悉Java&amp;Kotlin</li>
+<li>自定义View<ul>
+<li>事件分发机制</li>
+<li>绘制流程</li>
+</ul>
+</li>
+<li>常用设计模式</li>
+<li>App主流架构，mvp&amp;mvvm</li>
+<li>熟悉主流的开源库，了解它们的实现以及优缺点</li>
+<li>擅长性能调优&amp;fix内存泄漏问题</li>
+<li>擅长对主流的第三方sdk进行集成和封装</li>
+<li>喜欢并且也擅长编写整洁、规范、清晰的代码</li>
+</ul>
+</li>
+<li><p>小程序（mpvue）</p>
+<ul>
+<li>熟悉es6&amp;typescript</li>
+<li>熟悉mpvue&amp;vue2.x使用</li>
+<li>初步掌握部分vue全家桶使用</li>
+<li>熟悉flex布局</li>
+<li>熟悉组件化开发</li>
+</ul>
+</li>
+<li><p>RN（learing）</p>
+</li>
+</ul>
+<h2 id="闪光点"><a href="#闪光点" class="headerlink" title="闪光点"></a>闪光点</h2><ul>
+<li>讲究，<a href="https://github.com/vinta/pangu.js" target="_blank" rel="noopener">中英文空格</a></li>
+<li>搞事情，曾经的简书专题<a href="http://www.jianshu.com/collection/d9739e075eac" target="_blank" rel="noopener">weekio</a></li>
+<li>偷代码，博采众长，学习不同领域的知识来解决现有的问题</li>
+</ul>
+
+        
+      </div>
+      
+      
+      
+    </div>
+    
+
+
+
+    
+    
+    
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="http://7xsq1h.com1.z0.glb.clouddn.com/avatar_hellovass.jpeg"
+                alt="HelloVass" />
+            
+              <p class="site-author-name" itemprop="name">HelloVass</p>
+              <p class="site-description motion-element" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/HelloVass" target="_blank" title="GitHub">GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.jianshu.com/users/bf37dbaf04fd/latest_articles" target="_blank" title="jianshu">jianshu</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:hellova33@gmail.com" target="_blank" title="E-Mail">E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                已经完成的交♂易
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.bellorchid.info/" title="黑基" target="_blank">黑基</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tecotaku.cn/" title="gay哈" target="_blank">gay哈</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://geminiwen.com/" title="阿温" target="_blank">阿温</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.showonne.com/" title="showonne" target="_blank">showonne</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/kevinjqy" title="古风" target="_blank">古风</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://fogdong.github.io/" title="雾雾" target="_blank">雾雾</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mikumiku.com.cn" title="xana" target="_blank">xana</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mephis.me" title="东东" target="_blank">东东</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://cheri.love/" title="枫祺玥" target="_blank">枫祺玥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jianshu.com/u/6b372d09b617" title="右右" target="_blank">右右</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.harbon.link" title="川神" target="_blank">川神</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.licrafter.com/" title="祥哥" target="_blank">祥哥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://puppetkant.cn/" title="小木偶" target="_blank">小木偶</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简历"><span class="nav-number">1.</span> <span class="nav-text">简历</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#姓名：陈-轲（HelloVass）"><span class="nav-number">1.1.</span> <span class="nav-text">姓名：陈 轲（HelloVass）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开源"><span class="nav-number">1.2.</span> <span class="nav-text">开源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术栈"><span class="nav-number">1.3.</span> <span class="nav-text">技术栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#闪光点"><span class="nav-number">1.4.</span> <span class="nav-text">闪光点</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
