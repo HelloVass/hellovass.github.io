@@ -116,10 +116,12 @@
 <meta property="og:site_name" content="HelloVass&#39; blog site">
 <meta property="og:description" content="前言距离上篇《Android持续集成·前篇》已经有些时日，这次将会填上上篇留下的大坑，pipline 构建。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-02-03T04:59:27.987Z">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%96%B0%E5%BB%BApipline%E9%A1%B9%E7%9B%AE.png">
+<meta property="og:updated_time" content="2020-02-03T05:51:39.317Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android持续集成实践·后篇">
 <meta name="twitter:description" content="前言距离上篇《Android持续集成·前篇》已经有些时日，这次将会填上上篇留下的大坑，pipline 构建。">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%96%B0%E5%BB%BApipline%E9%A1%B9%E7%9B%AE.png">
 
 
 
@@ -366,7 +368,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-02-03 12:59:27" itemprop="dateModified" datetime="2020-02-03T12:59:27+08:00">2020-02-03</time>
+                <time title="修改时间：2020-02-03 13:51:39" itemprop="dateModified" datetime="2020-02-03T13:51:39+08:00">2020-02-03</time>
               
             
           </span>
@@ -413,7 +415,21 @@
 <li>众所周知：code 可以复用，而手动操作没法复用，没人想每个新项目都去重新设置一遍</li>
 </ul>
 <h3 id="拥抱-pipline"><a href="#拥抱-pipline" class="headerlink" title="拥抱 pipline"></a>拥抱 pipline</h3><p>所以后篇将放弃前篇的自由风格软件构建的方式，坚持 pipline 真香原则。</p>
-<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p>后篇将基于<strong>Jenkins 2.x</strong>进行实践</p>
+<h2 id="之前做不到的以及现在想要做的"><a href="#之前做不到的以及现在想要做的" class="headerlink" title="之前做不到的以及现在想要做的"></a>之前做不到的以及现在想要做的</h2><p>需要开发和维护的 Android 项目不止一个，而且每个项目都需要 CI，但每个项目的构建流程非常相似，但又有些不同。大体上的流程如下：</p>
+<ul>
+<li>克隆代码</li>
+<li>编译打包出 Apk</li>
+<li>静态代码检查（可选）</li>
+<li>单元测试（可选）</li>
+<li>归档（可选）</li>
+<li>上传测试分发平台</li>
+<li>通知相关人员构建结果（可选）</li>
+</ul>
+<p>可以看到整体的流程是相同的，但又存在差异。有的构建可以跳过单元测试，有的构建可以跳过静态代码检查，通知的相关人员也会不同。如果使用自由风格构建的方式，也8是8可以。</p>
+<p>但是，未来是不确定的，可能会添加新的构建流程（比如使用签名插件签名），而且一旦引入新的构建流程，可能会影响到已有的 job，就需要花费大量的时间和精力来修改和测试，难受。</p>
+<p>所以，想有一种船新的构建方式，将整体的构建作为一个模板or框架，每个项目可以通过配置项目各自的 CI文件来决定自己的构建流程，这样岂不是美滋滋。</p>
+<h2 id="实践经验分享"><a href="#实践经验分享" class="headerlink" title="实践经验分享"></a>实践经验分享</h2><h3 id="使用-pipline-构建"><a href="#使用-pipline-构建" class="headerlink" title="使用 pipline 构建"></a>使用 pipline 构建</h3><p>新建一个 pipline 项目</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%96%B0%E5%BB%BApipline%E9%A1%B9%E7%9B%AE.png" alt="新建一个 pipline 项目"></p>
 
       
     </div>
@@ -784,7 +800,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pipeline"><span class="nav-number">2.</span> <span class="nav-text">Pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pipline-是什么"><span class="nav-number">2.1.</span> <span class="nav-text">pipline 是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的问题"><span class="nav-number">2.2.</span> <span class="nav-text">之前的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">2.3.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拥抱-pipline"><span class="nav-number">2.4.</span> <span class="nav-text">拥抱 pipline</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实践"><span class="nav-number">3.</span> <span class="nav-text">实践</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pipeline"><span class="nav-number">2.</span> <span class="nav-text">Pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pipline-是什么"><span class="nav-number">2.1.</span> <span class="nav-text">pipline 是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的问题"><span class="nav-number">2.2.</span> <span class="nav-text">之前的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">2.3.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拥抱-pipline"><span class="nav-number">2.4.</span> <span class="nav-text">拥抱 pipline</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#之前做不到的以及现在想要做的"><span class="nav-number">3.</span> <span class="nav-text">之前做不到的以及现在想要做的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实践经验分享"><span class="nav-number">4.</span> <span class="nav-text">实践经验分享</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-pipline-构建"><span class="nav-number">4.1.</span> <span class="nav-text">使用 pipline 构建</span></a></li></ol></li></ol></div>
             
 
           </div>
