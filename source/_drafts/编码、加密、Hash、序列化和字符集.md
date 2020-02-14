@@ -22,11 +22,10 @@ tags:
 
 
 Android：
-- 编译流程
 - Android 签名机制
 - 启动流程
 - Handler 机制
 - Java 基础（集合类、线程通信）
-- 用程序检测界面是否卡顿
+- [用程序检测界面是否卡顿](https://blog.csdn.net/lmj623565791/article/details/58626355)
 - [等待子线程结束](https://blog.csdn.net/p106786860/article/details/52497215)
 - ConcurrentHashMap 如何实现线程安全的？
