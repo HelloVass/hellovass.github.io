@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言大厂面试比较喜欢问，看起来简单，没仔细理过就会采坑掉陷阱的题目">
+<meta name="keywords" content="Activity,面试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写给面试的·Activity 生命周期篇">
+<meta property="og:url" content="http://yoursite.com/2020/03/08/写给面试的/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="前言大厂面试比较喜欢问，看起来简单，没仔细理过就会采坑掉陷阱的题目">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T14:55:37.765Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="写给面试的·Activity 生命周期篇">
+<meta name="twitter:description" content="前言大厂面试比较喜欢问，看起来简单，没仔细理过就会采坑掉陷阱的题目">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/03/08/写给面试的/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>写给面试的·Activity 生命周期篇 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HelloVass' blog site</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">案件类型</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">╭( ′• o •′ )╭☞警察叔叔！就是这个人！</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">犯罪过程</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">作案手法</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-reviewme">
+    <a href="/reviewme/" rel="section">简历</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/08/写给面试的/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">写给面试的·Activity 生命周期篇
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-08 16:19:34 / 修改时间：22:55:37" itemprop="dateCreated datePublished" datetime="2020-03-08T16:19:34+08:00">2020-03-08</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>大厂面试比较喜欢问，看起来简单，没仔细理过就会采坑掉陷阱的题目</p>
+<a id="more"></a>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><ul>
+<li>onStart 和 onResume，onPause 和 onStop 从描述上来看差不多，对开发者来说有什么实质性的不同呢？</li>
+<li>假设当前 Activity 为 A，如果这时用户打开一个新 Activity B，那么 B 的 onResume 和 A 的 onPause 哪个先执行呢？</li>
+</ul>
+<h2 id="问题1"><a href="#问题1" class="headerlink" title="问题1."></a>问题1.</h2><p>从实际使用过程来说，onStart 和 onResume、onPause 和 onStop 看起来的确差不多，甚至我们可以只保留其中一对，比如只保留 onStart 和 onStop。既然如何，那为什么系统还要提供看起来重复的接口呢？</p>
+<p>这两个配对的接口表示的意义不同：</p>
+<ul>
+<li>onStart 和 onStop 从 Activity 是否可见</li>
+<li>onResume 和 onPause 从 Activity 是否位于前台</li>
+</ul>
+<h2 id="问题2"><a href="#问题2" class="headerlink" title="问题2."></a>问题2.</h2><p>涉及到 Activity 的启动流程，启动流程实际上非常复杂，包含 Instrumentation、ActivityThread 和 ActivityManagerService（经常说的AMS就是它了）。</p>
+<p>简述流程：</p>
+<ul>
+<li>启动 <code>Activity</code> 的请求由 <code>Instrumentation</code> 处理，然后它通过 Binder 向 AMS 发送请求</li>
+<li>AMS 内部维护了一个 ActivityStack 并负责栈内的 <code>Activity</code> 的状态同步，AMS 通过 <code>ActivityThread</code> 去同步 <code>Activity</code> 的状态从而完成生命周期方法的调用</li>
+</ul>
+<p>在 <code>ActivityStack</code> 中的 <code>resumeTopActivityInnerLocked</code> 关键代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// If the flag RESUME_WHILE_PAUSING is set, then continue to schedule the previous activity</span></span><br><span class="line"><span class="comment">// to be paused, while at the same time resuming the new resume activity only if the</span></span><br><span class="line"><span class="comment">// previous activity can't go into Pip since we want to give Pip activities a chance to</span></span><br><span class="line"><span class="comment">// enter Pip before resuming the next activity.</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> resumeWhilePausing = (next.info.flags &amp; FLAG_RESUME_WHILE_PAUSING) != <span class="number">0</span></span><br><span class="line">        &amp;&amp; !lastResumedCanPip;</span><br><span class="line"></span><br><span class="line"><span class="keyword">boolean</span> pausing = getDisplay().pauseBackStacks(userLeaving, next, <span class="keyword">false</span>);</span><br><span class="line"><span class="keyword">if</span> (mResumedActivity != <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (DEBUG_STATES) Slog.d(TAG_STATES,</span><br><span class="line">            <span class="string">"resumeTopActivityLocked: Pausing "</span> + mResumedActivity);</span><br><span class="line">    pausing |= startPausingLocked(userLeaving, <span class="keyword">false</span>, next, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从注释里可以看到，在新 Activity 启动之前，栈顶的 Activity 需要先 onPause，新 Activity 才能启动。最终，在 ActivityStackSupervisor 中的 realStartActivityLocked 方法会调用如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Schedule transaction.</span></span><br><span class="line">mService.getLifecycleManager().scheduleTransaction(clientTransaction);</span><br><span class="line"></span><br><span class="line"><span class="comment">// frameworks/base/services/core/java/com/android/server/am/ClientLifecycleManager.java </span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">scheduleTransaction</span><span class="params">(ClientTransaction transaction)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> IApplicationThread client = transaction.getClient();</span><br><span class="line">    transaction.schedule();</span><br><span class="line">    <span class="comment">// 省略N行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// frameworks/base/core/java/android/app/servertransaction/ClientTransaction.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">schedule</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">    mClient.scheduleTransaction(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ClientTransaction#schedule</code>方法中的<code>mClient</code>是一个<code>IApplicationThread</code>接口，<code>ActivityThread$ApplicationThread</code>派生这个接口并实现了对应的方法。所以直接到<code>ApplicationThread#scheduleTransaction</code>方法。<code>ActivityThread</code> 类中没有定义 <code>scheduleTransaction</code> 方法，所以调用的是他父类的 <code>ClientTransactionHandler#scheduleTransaction</code> 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/android/app/ActivityThread.java</span></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ApplicationThread</span> <span class="keyword">extends</span> <span class="title">IApplicationThread</span>.<span class="title">Stub</span> </span>&#123;</span><br><span class="line">    ..</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scheduleTransaction</span><span class="params">(ClientTransaction transaction)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        ActivityThread.<span class="keyword">this</span>.scheduleTransaction(transaction);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// frameworks/base/core/java/android/app/ClientTransactionHandler.java</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">scheduleTransaction</span><span class="params">(ClientTransaction transaction)</span> </span>&#123;</span><br><span class="line">    transaction.preExecute(<span class="keyword">this</span>);</span><br><span class="line">    sendMessage(ActivityThread.H.EXECUTE_TRANSACTION, transaction);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 ClientTransactionHandler#scheduleTransaction 中调用了 sendMessage 方法，该方法是一个抽象方法，实现在 ClientTransactionHandler 的派生类 ActivityThread 中，ActivityThread#sendMessage 方法会把消息发给内部名为<code>H</code>的<code>Handler</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/android/app/ActivityThread.java</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sendMessage</span><span class="params">(<span class="keyword">int</span> what, Object obj)</span> </span>&#123;</span><br><span class="line">    sendMessage(what, obj, <span class="number">0</span>, <span class="number">0</span>, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendMessage</span><span class="params">(<span class="keyword">int</span> what, Object obj, <span class="keyword">int</span> arg1)</span> </span>&#123;</span><br><span class="line">    sendMessage(what, obj, arg1, <span class="number">0</span>, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendMessage</span><span class="params">(<span class="keyword">int</span> what, Object obj, <span class="keyword">int</span> arg1, <span class="keyword">int</span> arg2)</span> </span>&#123;</span><br><span class="line">    sendMessage(what, obj, arg1, arg2, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendMessage</span><span class="params">(<span class="keyword">int</span> what, Object obj, <span class="keyword">int</span> arg1, <span class="keyword">int</span> arg2, <span class="keyword">boolean</span> async)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (DEBUG_MESSAGES) Slog.v(</span><br><span class="line">        TAG, <span class="string">"SCHEDULE "</span> + what + <span class="string">" "</span> + mH.codeToString(what)</span><br><span class="line">        + <span class="string">": "</span> + arg1 + <span class="string">" / "</span> + obj);</span><br><span class="line">    Message msg = Message.obtain();</span><br><span class="line">    msg.what = what;</span><br><span class="line">    msg.obj = obj;</span><br><span class="line">    msg.arg1 = arg1;</span><br><span class="line">    msg.arg2 = arg2;</span><br><span class="line">    <span class="keyword">if</span> (async) &#123;</span><br><span class="line">        msg.setAsynchronous(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    mH.sendMessage(msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ActivityThread$H</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="keyword">case</span> EXECUTE_TRANSACTION: </span><br><span class="line">        <span class="keyword">final</span> ClientTransaction transaction = (ClientTransaction) msg.obj;</span><br><span class="line">        mTransactionExecutor.execute(transaction);</span><br><span class="line">        <span class="comment">// 省略 N行</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>H 的实例接收到 EXECUTE_TRANSACTION 消息后，调用<code>TransactionExecutor#execute</code>方法切换 Activity 的状态。<code>TransactionExecutor#execute</code> 方法里先执行 callbacks（如果不为null），然后改变 Activity 当前的生命周期状态。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/android/app/servertransaction/TransactionExecutor.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(ClientTransaction transaction)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    executeCallbacks(transaction);</span><br><span class="line">    executeLifecycleState(transaction);</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Transition to the final state if requested by the transaction. */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">executeLifecycleState</span><span class="params">(ClientTransaction transaction)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="comment">// Cycle to the state right before the final requested state.</span></span><br><span class="line">    cycleToPath(r, lifecycleItem.getTargetState(), <span class="keyword">true</span> <span class="comment">/* excludeLastState */</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Execute the final transition with proper parameters.</span></span><br><span class="line">    lifecycleItem.execute(mTransactionHandler, token, mPendingActions);</span><br><span class="line">    lifecycleItem.postExecute(mTransactionHandler, token, mPendingActions);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>executeLifecycleState</code>方法里:</p>
+<ul>
+<li>先调用<code>TransactionExecutor#cycleToPath</code>方法执行当前生命周期状态之前的状态</li>
+<li>然后执行<code>ActivityLifecycleItem#execute</code>方法，由于是从<code>ON_RESUME</code>状态到<code>ON_PAUSE</code>状态切换，中间没有其他状态，cycleToPath 这个情况下没有做什么实质性的事情，直接执行<code>lifecycleItem.execute</code>方法</li>
+<li>之前在<code>ActivityStack.startPausingLocked</code>方法里面<code>scheduleTransaction</code>传递的是<code>PauseActivityItem</code>对象，所以<code>executeLifecycleState</code>方法里的<code>lifecycleItem</code>实际是<code>PauseActivityItem</code>对象</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/android/app/servertransaction/PauseActivityItem.java</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(ClientTransactionHandler client, IBinder token,</span></span></span><br><span class="line"><span class="function"><span class="params">           PendingTransactionActions pendingActions)</span> </span>&#123;</span><br><span class="line">       Trace.traceBegin(TRACE_TAG_ACTIVITY_MANAGER, <span class="string">"activityPause"</span>);</span><br><span class="line">       client.handlePauseActivity(token, mFinished, mUserLeaving, mConfigChanges, pendingActions,</span><br><span class="line">               <span class="string">"PAUSE_ACTIVITY_ITEM"</span>);</span><br><span class="line">       Trace.traceEnd(TRACE_TAG_ACTIVITY_MANAGER);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p><code>PauseActivityItem#execute</code>方法中传入的<code>client</code>实际上是<code>ActivityThread</code>对象，所以我们又回到了<code>ActivityThread</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/android/app/ActivityThread.java</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handlePauseActivity</span><span class="params">(IBinder token, <span class="keyword">boolean</span> finished, <span class="keyword">boolean</span> userLeaving,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> configChanges, PendingTransactionActions pendingActions, String reason)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 省略 N行</span></span><br><span class="line">        performPauseActivity(r, finished, reason, pendingActions);</span><br><span class="line">        <span class="comment">// 省略 N行</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">final</span> Bundle <span class="title">performPauseActivity</span><span class="params">(IBinder token, <span class="keyword">boolean</span> finished, String reason,</span></span></span><br><span class="line"><span class="function"><span class="params">        PendingTransactionActions pendingActions)</span> </span>&#123;</span><br><span class="line">    ActivityClientRecord r = mActivities.get(token);</span><br><span class="line">    <span class="keyword">return</span> r != <span class="keyword">null</span> ? performPauseActivity(r, finished, reason, pendingActions) : <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Pause the activity.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> Saved instance state for pre-Honeycomb apps if it was saved, &#123;<span class="doctag">@code</span> null&#125; otherwise.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Bundle <span class="title">performPauseActivity</span><span class="params">(ActivityClientRecord r, <span class="keyword">boolean</span> finished, String reason,</span></span></span><br><span class="line"><span class="function"><span class="params">        PendingTransactionActions pendingActions)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="keyword">if</span> (shouldSaveState) &#123;</span><br><span class="line">        callActivityOnSaveInstanceState(r);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    performPauseActivityIfNeeded(r, reason);</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="keyword">return</span> shouldSaveState ? r.state : <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">performPauseActivityIfNeeded</span><span class="params">(ActivityClientRecord r, String reason)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        r.activity.mCalled = <span class="keyword">false</span>;</span><br><span class="line">        mInstrumentation.callActivityOnPause(r.activity);</span><br><span class="line">        <span class="comment">// 省略 N行</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (SuperNotCalledException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!mInstrumentation.onException(r.activity, e)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to pause activity "</span></span><br><span class="line">                    + safeToComponentShortString(r.intent) + <span class="string">": "</span> + e.toString(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    r.setState(ON_PAUSE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>离终点总算不远了，<code>Instrumentation#callActivityOnPause</code> 方法中调用了<code>Activity#performPause</code>，在<code>performPause</code>中我们终于看到了熟悉的钩子函数<code>onPause</code>，至此栈顶<code>Activity</code>的<code>pause</code>流程完毕。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这里的源码是根据 Android 9.0 来分析的，跟 5.0 相比，真的复杂了很多，看到一位老哥的 Activity启动流程源码分析写的不错，把 pause 这块的流程分析稍加整理放到了这道题目下，有兴趣的话可以自己翻阅源码。</p>
+<p>思考，9.0 的源码里似乎多了很多<code>lifecycle</code>、状态切换相关的字眼，如果是熟悉<code>aac架构</code>的老哥们一定不陌生了，9.0 这块改动这么大应该就是加入了 LifeCycle 的特性（确信）。</p>
+<p>综上，新启一个<code>Activity</code>的时候，旧<code>Activity</code>的<code>onPause</code>会先执行，然后才会启动新的<code>Activity</code>。</p>
+<p>官网对 onPause 的解释：</p>
+<blockquote>
+<p>The foreground lifetime of an activity happens between a call to onResume() until a corresponding call to onPause(). During this time the activity is in visible, active and interacting with the user. An activity can frequently go between the resumed and paused states – for example when the device goes to sleep, when an activity result is delivered, when a new intent is delivered – so the code in these methods should be fairly lightweight.</p>
+</blockquote>
+<p>别在 onPause 里做重量级操作，因为 onPause 执行完之后，新 Activity 才能 Resume！</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://blog.csdn.net/lj19851227/article/details/82562115" target="_blank" rel="noopener">（Android 9.0）Activity启动流程源码分析</a></li>
+<li><a href="https://item.jd.com/11760209.html" target="_blank" rel="noopener">Android开发艺术探索</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Activity/" rel="tag"># Activity</a>
+          
+            <a href="/tags/面试/" rel="tag"># 面试</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/08/AOP方案总结/" rel="next" title="AOP方案总结">
+                <i class="fa fa-chevron-left"></i> AOP方案总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg"
+                alt="HelloVass" />
+            
+              <p class="site-author-name" itemprop="name">HelloVass</p>
+              <p class="site-description motion-element" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">文章</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">58</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/HelloVass" target="_blank" title="GitHub">GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.jianshu.com/users/bf37dbaf04fd/latest_articles" target="_blank" title="jianshu">jianshu</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:hellova33@gmail.com" target="_blank" title="E-Mail">E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                已经完成的交♂易
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.bellorchid.info/" title="黑基" target="_blank">黑基</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tecotaku.cn/" title="gay哈" target="_blank">gay哈</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://geminiwen.com/" title="阿温" target="_blank">阿温</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.showonne.com/" title="showonne" target="_blank">showonne</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/kevinjqy" title="古风" target="_blank">古风</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://fogdong.github.io/" title="雾雾" target="_blank">雾雾</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mikumiku.com.cn" title="xana" target="_blank">xana</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://mephis.me" title="东东" target="_blank">东东</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://cheri.love/" title="枫祺玥" target="_blank">枫祺玥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jianshu.com/u/6b372d09b617" title="右右" target="_blank">右右</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.harbon.link" title="川神" target="_blank">川神</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.licrafter.com/" title="祥哥" target="_blank">祥哥</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://puppetkant.cn/" title="小木偶" target="_blank">小木偶</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题"><span class="nav-number">2.</span> <span class="nav-text">问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题1"><span class="nav-number">2.1.</span> <span class="nav-text">问题1.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题2"><span class="nav-number">2.2.</span> <span class="nav-text">问题2.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
