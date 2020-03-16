@@ -108,27 +108,25 @@
 
 
 
-  <meta name="description" content="问题反转单链表#206">
-<meta name="keywords" content="算法与数据结构,leetcode">
+  <meta name="description" content="问题两数相加#2">
+<meta name="keywords" content="leetcode,算法与数据结构">
 <meta property="og:type" content="article">
-<meta property="og:title" content="单链表反转#206">
-<meta property="og:url" content="http://yoursite.com/2020/03/10/leetcode·单链表反转/index.html">
+<meta property="og:title" content="add-two-numbers#2">
+<meta property="og:url" content="http://yoursite.com/2020/03/12/leetcode·add-two-numbers/index.html">
 <meta property="og:site_name" content="HelloVass&#39; blog site">
-<meta property="og:description" content="问题反转单链表#206">
+<meta property="og:description" content="问题两数相加#2">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%8F%8D%E8%BD%AC%E5%8D%95%E9%93%BE%E8%A1%A8.gif">
-<meta property="og:updated_time" content="2020-03-11T08:50:57.248Z">
+<meta property="og:updated_time" content="2020-03-15T15:35:59.951Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="单链表反转#206">
-<meta name="twitter:description" content="问题反转单链表#206">
-<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%8F%8D%E8%BD%AC%E5%8D%95%E9%93%BE%E8%A1%A8.gif">
+<meta name="twitter:title" content="add-two-numbers#2">
+<meta name="twitter:description" content="问题两数相加#2">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/03/10/leetcode·单链表反转/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/03/12/leetcode·add-two-numbers/"/>
 
 
 
@@ -138,7 +136,7 @@
   };
 </script>
 
-  <title>单链表反转#206 | HelloVass' blog site</title>
+  <title>add-two-numbers#2 | HelloVass' blog site</title>
   
 
 
@@ -309,7 +307,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/10/leetcode·单链表反转/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/12/leetcode·add-two-numbers/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="HelloVass">
@@ -326,7 +324,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">单链表反转#206
+          <h1 class="post-title" itemprop="name headline">add-two-numbers#2
               
             
           </h1>
@@ -351,7 +349,7 @@
                 
               
 
-              <time title="创建时间：2020-03-10 23:00:46" itemprop="dateCreated datePublished" datetime="2020-03-10T23:00:46+08:00">2020-03-10</time>
+              <time title="创建时间：2020-03-12 00:28:06" itemprop="dateCreated datePublished" datetime="2020-03-12T00:28:06+08:00">2020-03-12</time>
             
 
             
@@ -368,7 +366,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-03-11 16:50:57" itemprop="dateModified" datetime="2020-03-11T16:50:57+08:00">2020-03-11</time>
+                <time title="修改时间：2020-03-15 23:35:59" itemprop="dateModified" datetime="2020-03-15T23:35:59+08:00">2020-03-15</time>
               
             
           </span>
@@ -401,44 +399,9 @@
       
 
       
-        <h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p><a href="https://leetcode-cn.com/problems/reverse-linked-list/" target="_blank" rel="noopener">反转单链表#206</a></p>
+        <h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p><a href="https://leetcode-cn.com/problems/add-two-numbers/" target="_blank" rel="noopener">两数相加#2</a></p>
 <a id="more"></a>
-<h1 id="工程化"><a href="#工程化" class="headerlink" title="工程化"></a>工程化</h1><p><code>leetcode</code>提交运行等待结果是一件很漫长的事情，而我们从编写代码到<code>debug</code>成功期间可能会失败 N次，所以本地有一个方便我们运行测试的环境还是蛮重要的。</p>
-<p>这里我选择建立了一个<a href="https://github.com/HelloVass/leetcode_resolver" target="_blank" rel="noopener">工程</a>，将题解代码放在里面。</p>
-<p><code>leetcode</code>题解调试过程中自定义的数据结构、方法有很多都是可以复用的，</p>
-<p>所以，我们尽可能地复（tou）用（lan）。</p>
-<h2 id="节点类定义"><a href="#节点类定义" class="headerlink" title="节点类定义"></a>节点类定义</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ListNode</span></span>(<span class="keyword">var</span> `<span class="keyword">val</span>`: <span class="built_in">Int</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> next: ListNode? = <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>吐槽，<code>val</code>与<code>kotlin</code>的关键字冲突，所以要通过` `来转义(😢)。</p>
-</blockquote>
-<h2 id="ListNode-reverse"><a href="#ListNode-reverse" class="headerlink" title="ListNode?#reverse"></a>ListNode?#reverse</h2><p>kotlin 基操，给<code>ListNode?</code>定义一个扩展方法<code>reverse</code>，将具体的实现写在这里。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ListNode.kt</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> ListNode?.<span class="title">reverse</span><span class="params">()</span></span>: ListNode? &#123;</span><br><span class="line">    <span class="comment">// 这里给出具体的代码实现</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Solution206.kt</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution206</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">reverse</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="comment">// 从顺序表生成一个单链表</span></span><br><span class="line">        <span class="keyword">val</span> head = listOf(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>).toLinkedList()</span><br><span class="line">        <span class="comment">// 反转单链表，得到新的头结点</span></span><br><span class="line">        <span class="keyword">val</span> newHead = head.reverse()</span><br><span class="line">        <span class="comment">// 打印链表</span></span><br><span class="line">        newHead.toList().forEach &#123;</span><br><span class="line">            print(<span class="string">"<span class="variable">$it</span>"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里用到了两个我自定义的扩展方法：</p>
-<ul>
-<li>List#toLinkedList，将<code>List</code>转换为单链表</li>
-<li>ListNode#toList，将单链表转换为<code>List</code></li>
-</ul>
-<blockquote>
-<p>PS: 目前题解还不多，日后完善了可能会开源回馈社区</p>
-</blockquote>
-<h1 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h1><h2 id="双指针迭代法"><a href="#双指针迭代法" class="headerlink" title="双指针迭代法"></a>双指针迭代法</h2><p>要反转链表，核心就是将节点的<code>next</code>指针指向前驱<br>但当前节点无法访问<strong>过去的节点</strong>（前驱）<br>因此需要保存前驱节点</p>
-<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%8F%8D%E8%BD%AC%E5%8D%95%E9%93%BE%E8%A1%A8.gif" alt="反转单链表"></p>
-<p>申请两个指针：</p>
-<ul>
-<li><code>prev</code>，最初指向<code>NULL</code>；<code>cur</code>，最初指向<code>HEAD</code></li>
-<li>不断遍历<code>cur</code>，每次迭代到<code>cur</code>，将<code>cur.next -&gt; prev</code>（指针反指），然后<code>prev</code>和<code>cur</code>前进一格</li>
-<li><code>cur</code>迭代完成（<code>cur</code>为<code>NULL</code>），<code>prev</code>所在的就是最后一个节点</li>
-</ul>
-<p>核心代码如下：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(cur != <span class="literal">null</span>)&#123;</span><br><span class="line">    <span class="comment">// 先保存`cur`的下一个节点，否则"prev"、"cur"前进的时找不到下个节点</span></span><br><span class="line">    <span class="keyword">val</span> next = cur.next</span><br><span class="line">    cur.next = prev</span><br><span class="line">    prev = cur</span><br><span class="line">    cur = next</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="reverse-实现"><a href="#reverse-实现" class="headerlink" title="reverse 实现"></a>reverse 实现</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> ListNode?.<span class="title">reverse</span><span class="params">()</span></span>: ListNode? &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> == <span class="literal">null</span> || next == <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> prev: ListNode? = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">var</span> cur: ListNode? = <span class="keyword">this</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (cur != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">val</span> next = cur.next</span><br><span class="line">        cur.next = prev</span><br><span class="line">        prev = cur</span><br><span class="line">        cur = next</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> prev</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="边界情况"><a href="#边界情况" class="headerlink" title="边界情况"></a>边界情况</h3><p><code>kotlin</code> 在语言层面支持空安全，结合<code>IDE</code>的提醒，时刻提醒我们注意边界！</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果当前链表为空或者只有一个节点，直接返回自身</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span> == <span class="literal">null</span> || next == <span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br></pre></td></tr></table></figure>
-<h2 id="递归解法"><a href="#递归解法" class="headerlink" title="递归解法"></a>递归解法</h2><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="https://leetcode-cn.com/problems/reverse-linked-list/solution/dong-hua-yan-shi-206-fan-zhuan-lian-biao-by-user74/" target="_blank" rel="noopener">题解1</a></li>
-</ul>
-
+<h1 id="工程化"><a href="#工程化" class="headerlink" title="工程化"></a>工程化</h1>
       
     </div>
 
@@ -458,9 +421,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/算法与数据结构/" rel="tag"># 算法与数据结构</a>
-          
             <a href="/tags/leetcode/" rel="tag"># leetcode</a>
+          
+            <a href="/tags/算法与数据结构/" rel="tag"># 算法与数据结构</a>
           
         </div>
       
@@ -473,8 +436,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/03/09/Interview·StackTrace衍生篇/" rel="next" title="写给面试的·StackTrace衍生篇">
-                <i class="fa fa-chevron-left"></i> 写给面试的·StackTrace衍生篇
+              <a href="/2020/03/10/leetcode·reverse-linked-list/" rel="next" title="reverse-linked-list#206">
+                <i class="fa fa-chevron-left"></i> reverse-linked-list#206
               </a>
             
           </div>
@@ -482,6 +445,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/15/leetcode·reverse-integer/" rel="prev" title="reverse-integer#7">
+                reverse-integer#7 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -559,7 +526,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">45</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">文章</span>
                   </a>
                 </div>
@@ -844,7 +811,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工程化"><span class="nav-number">2.</span> <span class="nav-text">工程化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#节点类定义"><span class="nav-number">2.1.</span> <span class="nav-text">节点类定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ListNode-reverse"><span class="nav-number">2.2.</span> <span class="nav-text">ListNode?#reverse</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单元测试"><span class="nav-number">2.3.</span> <span class="nav-text">单元测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解法"><span class="nav-number">3.</span> <span class="nav-text">解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#双指针迭代法"><span class="nav-number">3.1.</span> <span class="nav-text">双指针迭代法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#reverse-实现"><span class="nav-number">3.1.1.</span> <span class="nav-text">reverse 实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#边界情况"><span class="nav-number">3.1.2.</span> <span class="nav-text">边界情况</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#递归解法"><span class="nav-number">3.2.</span> <span class="nav-text">递归解法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工程化"><span class="nav-number">2.</span> <span class="nav-text">工程化</span></a></li></ol></div>
             
 
           </div>
