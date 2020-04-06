@@ -108,25 +108,25 @@
 
 
 
-  <meta name="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
-<meta name="keywords" content="rxjava,redux">
+  <meta name="description" content="前言从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。 那么，是什么问题呢？">
+<meta name="keywords" content="redux,rxjava">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kotlin 实现 redux">
-<meta property="og:url" content="http://yoursite.com/2020/03/30/kotlin 实现 Redux/index.html">
+<meta property="og:url" content="http://yoursite.com/2020/03/30/kotlin实现Redux/index.html">
 <meta property="og:site_name" content="HelloVass&#39; blog site">
-<meta property="og:description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+<meta property="og:description" content="前言从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。 那么，是什么问题呢？">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-04-04T08:27:39.688Z">
+<meta property="og:updated_time" content="2020-04-06T09:19:45.979Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kotlin 实现 redux">
-<meta name="twitter:description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+<meta name="twitter:description" content="前言从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。 那么，是什么问题呢？">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/03/30/kotlin 实现 Redux/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/03/30/kotlin实现Redux/"/>
 
 
 
@@ -307,7 +307,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/30/kotlin 实现 Redux/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/30/kotlin实现Redux/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="HelloVass">
@@ -366,7 +366,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2020-04-04 16:27:39" itemprop="dateModified" datetime="2020-04-04T16:27:39+08:00">2020-04-04</time>
+                <time title="修改时间：2020-04-06 17:19:45" itemprop="dateModified" datetime="2020-04-06T17:19:45+08:00">2020-04-06</time>
               
             
           </span>
@@ -399,7 +399,45 @@
       
 
       
-        
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。</p>
+<p>那么，是什么问题呢？</p>
+<a id="more"></a>
+<h1 id="State-Management"><a href="#State-Management" class="headerlink" title="State Management"></a>State Management</h1><p>React 的理念里有这么一个公式：</p>
+<blockquote>
+<p>UI = render(data)</p>
+</blockquote>
+<p>UI 即用户看到的界面，是一个 <code>render</code>（函数）的执行结果，只接受 <code>data</code>（数据）作为参数。这个函数是一个<strong>纯函数</strong>，所谓纯函数，指的是没有任何副作用，输出完全依赖于输入的函数，两次函数调用，如果输入相同，得到的结果也绝对相同。如此一来，最终的用户界面，在 <code>render</code> 函数确定的情况下完全取决于输入数据。</p>
+<p>对于开发者来说，重要的是区分开哪些属于 <code>data</code>，哪些属于 <code>render</code>，想要更新用户界面，要做的就是更新 <code>data</code>，用户界面自然会做出响应，所以 React 实践的也是“响应式编程”（Reactive Programming）的思想。</p>
+<h2 id="React-的-state"><a href="#React-的-state" class="headerlink" title="React 的 state"></a>React 的 state</h2><p>驱动组件渲染过程的除了 prop，还有 state， state 代表组件的内部状态。由于 React 组件不能修改传入的 prop，所以需要记录自身数据变化，就要使用 state。</p>
+<h2 id="状态分类"><a href="#状态分类" class="headerlink" title="状态分类"></a>状态分类</h2><p>状态分 2 种：</p>
+<ul>
+<li>局部状态：这种由 Component 管理，比如：<ul>
+<li>Progressbar 的当前进度</li>
+<li>TabIndicator 的当前选中 tab</li>
+</ul>
+</li>
+</ul>
+<p>这种状态不需要使用复杂的状态管理方案，靠 Component 维护就好了。</p>
+<ul>
+<li>全局状态：需要在2个及以上的地方共享的状态。比如：<ul>
+<li>用户信息</li>
+<li>用户设置</li>
+<li>购物车</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<p>而这些状态的划分，emmm，没有一个清晰的界限，主要还是靠程序员的经验。但是，单靠 Component 的 setState() 来管理所有的状态是有<a href="https://weread.qq.com/web/reader/a0b327005d185ca0b5a7803k6ea321b021d6ea9ab1ba605" target="_blank" rel="noopener">极限</a>的！</p>
+<p>上述的状态管理方案，对前端童鞋来说已经 8 是问题了，并且还给出了许多优秀的开源框架：</p>
+<ul>
+<li>redux</li>
+<li>mobx</li>
+<li>vuex</li>
+<li>…</li>
+</ul>
+<h2 id="Android-的状态管理方案"><a href="#Android-的状态管理方案" class="headerlink" title="Android 的状态管理方案"></a>Android 的状态管理方案</h2><p>严格来说，从事 Android 开发的童鞋似乎很少在官方文档或者社区上看到<strong>State Management</strong>相关的介绍，实践就更少了，首先，Android 是命令式的（imperative），通过 <code>setText()</code> 类似的命令式 API 来改变 UI，所以大部分 Android 看到上述 <code>UI = render(data)</code> 这样的公式，都会有点摸不着头脑。然后，在那个还没有 Kotlin 的年代，Android 的主流开发语言是 Java，大家最熟悉的就是 OOP 编程， 什么函数式编程，什么纯函数啊，不可变特性啊。。。天顶星人科技？最后的结果就是，大家在这方面思考的少，而现有的系统API、第三方库甚至自己稍微捣鼓捣鼓，也能解决，所以，Android 的 UI 开发体验一直都不如前端。而我本人，也在近些年的工作学习中不断质疑（接触了前端之后），为毛 Android 这些业务代码写起来就是没有前端的香呢？</p>
+<p>虽然 Android 上没有<strong>状态管理</strong>，但是有类似的东东！</p>
+<h3 id="组件间通信-amp-amp-事件总线"><a href="#组件间通信-amp-amp-事件总线" class="headerlink" title="组件间通信&amp;&amp;事件总线"></a>组件间通信&amp;&amp;事件总线</h3><h3 id="组件间通信"><a href="#组件间通信" class="headerlink" title="组件间通信"></a>组件间通信</h3>
       
     </div>
 
@@ -419,9 +457,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/rxjava/" rel="tag"># rxjava</a>
-          
             <a href="/tags/redux/" rel="tag"># redux</a>
+          
+            <a href="/tags/rxjava/" rel="tag"># rxjava</a>
           
         </div>
       
@@ -495,8 +533,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -782,6 +829,10 @@
                     <a href="http://blog.licrafter.com/" title="祥哥" target="_blank">祥哥</a>
                   </li>
                 
+                  <li class="links-of-blogroll-item">
+                    <a href="https://rychou.github.io/" title="锐哥" target="_blank">锐哥</a>
+                  </li>
+                
               </ul>
             </div>
           
@@ -794,6 +845,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#State-Management"><span class="nav-number">2.</span> <span class="nav-text">State Management</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#React-的-state"><span class="nav-number">2.1.</span> <span class="nav-text">React 的 state</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态分类"><span class="nav-number">2.2.</span> <span class="nav-text">状态分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-的状态管理方案"><span class="nav-number">2.3.</span> <span class="nav-text">Android 的状态管理方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#组件间通信-amp-amp-事件总线"><span class="nav-number">2.3.1.</span> <span class="nav-text">组件间通信&amp;&amp;事件总线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#组件间通信"><span class="nav-number">2.3.2.</span> <span class="nav-text">组件间通信</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
