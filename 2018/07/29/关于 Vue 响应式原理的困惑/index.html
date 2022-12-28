@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="需求描述需要将用户信息的 UI（下文用 UserInfo 来代替） 写成一个 Vue 组件，达到重用的目的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于 Vue 响应式原理的困惑">
+<meta property="og:url" content="http://yoursite.com/2018/07/29/%E5%85%B3%E4%BA%8E%20Vue%20%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86%E7%9A%84%E5%9B%B0%E6%83%91/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="需求描述需要将用户信息的 UI（下文用 UserInfo 来代替） 写成一个 Vue 组件，达到重用的目的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/UserInfo%20%E7%BB%84%E4%BB%B6.png">
+<meta property="article:published_time" content="2018-07-29T06:11:41.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.280Z">
+<meta property="article:author" content="HelloVass">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/UserInfo%20%E7%BB%84%E4%BB%B6.png">
+
+<link rel="canonical" href="http://yoursite.com/2018/07/29/%E5%85%B3%E4%BA%8E%20Vue%20%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86%E7%9A%84%E5%9B%B0%E6%83%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>关于 Vue 响应式原理的困惑 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/29/%E5%85%B3%E4%BA%8E%20Vue%20%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86%E7%9A%84%E5%9B%B0%E6%83%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          关于 Vue 响应式原理的困惑
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-07-29 14:11:41" itemprop="dateCreated datePublished" datetime="2018-07-29T14:11:41+08:00">2018-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="需求描述"><a href="#需求描述" class="headerlink" title="需求描述"></a>需求描述</h2><p>需要将<strong>用户信息的 UI</strong>（下文用 <code>UserInfo</code> 来代替） 写成一个 <code>Vue</code> 组件，达到<strong>重用</strong>的目的。</p>
+<span id="more"></span>
+
+
+<h2 id="UserInfo-组成"><a href="#UserInfo-组成" class="headerlink" title="UserInfo 组成"></a>UserInfo 组成</h2><ul>
+<li>用户信息的模板</li>
+<li>获取用户信息的逻辑</li>
+<li>样式</li>
+</ul>
+<h2 id="大概长这样"><a href="#大概长这样" class="headerlink" title="大概长这样"></a>大概长这样</h2><p>请先忽略<strong>丑陋的UI</strong>，显示的元素主要就俩：</p>
+<ul>
+<li><strong>头像</strong></li>
+<li><strong>昵称</strong>。</li>
+</ul>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/UserInfo%20%E7%BB%84%E4%BB%B6.png" alt="UserInfo 组件"></p>
+<h2 id="服务端返回的数据格式"><a href="#服务端返回的数据格式" class="headerlink" title="服务端返回的数据格式"></a>服务端返回的数据格式</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;data&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;id&quot;</span>:<span class="string">&quot;2&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;user&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;attributes&quot;</span>:&#123;</span><br><span class="line">            <span class="attr">&quot;nick_name&quot;</span>:<span class="string">&quot;HelloVass&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;avatar&quot;</span>:<span class="string">&quot;https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83epZOhVL6QcUqJjEo7mqSpiamWRAaX1lB9dV79PzfOA5CMzBlBmCUfKibb2JyMQ0Rubic9OLMzjBRS9Gw/132&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;score&quot;</span>:<span class="number">0</span>,</span><br><span class="line">            <span class="attr">&quot;data&quot;</span>:&#123;</span><br><span class="line">                <span class="attr">&quot;gender&quot;</span>:<span class="number">1</span>,</span><br><span class="line">                <span class="attr">&quot;city&quot;</span>:<span class="string">&quot;Hangzhou&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;province&quot;</span>:<span class="string">&quot;Zhejiang&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;country&quot;</span>:<span class="string">&quot;China&quot;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="UserInfo-的代码非常简单"><a href="#UserInfo-的代码非常简单" class="headerlink" title="UserInfo 的代码非常简单"></a>UserInfo 的代码非常简单</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line"></span><br><span class="line">  &lt;div class=&quot;user-container&quot;&gt;</span><br><span class="line">    &lt;!--背景--&gt;</span><br><span class="line">    &lt;image</span><br><span class="line">      class=&quot;user-bg&quot;</span><br><span class="line">      mode=&quot;aspectFill&quot;</span><br><span class="line">      :src=&quot;userInfo.avatar&quot;</span><br><span class="line">    &gt;</span><br><span class="line">    &lt;/image&gt;</span><br><span class="line">     &lt;!--用户信息--&gt;</span><br><span class="line">    &lt;div class=&quot;user-info&quot;&gt;</span><br><span class="line">      &lt;!--头像--&gt;</span><br><span class="line">      &lt;image</span><br><span class="line">        class=&quot;user-avatar&quot;</span><br><span class="line">        :src=&quot;userInfo.avatar&quot;</span><br><span class="line">      &gt;&lt;/image&gt;</span><br><span class="line">      &lt;!--昵称--&gt;</span><br><span class="line">      &lt;div</span><br><span class="line">        class=&quot;user-nickname&quot;</span><br><span class="line">      &gt;&#123;&#123;userInfo.nick_name&#125;&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">  // 用户Api</span><br><span class="line">  import UsersApi from &quot;@/network/users-api&quot;;</span><br><span class="line"></span><br><span class="line">  export default &#123;</span><br><span class="line">      </span><br><span class="line">    name: &quot;UserHeader&quot;,</span><br><span class="line"></span><br><span class="line">    data() &#123;</span><br><span class="line">      return &#123;</span><br><span class="line">        result: Object</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    computed: &#123;</span><br><span class="line">      // 用户是否登录</span><br><span class="line">      isLogin() &#123;</span><br><span class="line">        return this.$store.getters.isLogin;</span><br><span class="line">      &#125;,</span><br><span class="line">	  // 用户信息</span><br><span class="line">      userInfo() &#123;</span><br><span class="line">        return this.result.data.attributes;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    created() &#123;</span><br><span class="line">        </span><br><span class="line">      // 未登录，return</span><br><span class="line">      if (!this.isLogin) &#123;</span><br><span class="line">        return;</span><br><span class="line">      &#125;</span><br><span class="line">        </span><br><span class="line">      // 已经登录，直接从服务器获取用户数据</span><br><span class="line">      UsersApi.getUserInfo()</span><br><span class="line">        .then(res =&gt; &#123;</span><br><span class="line">          this.result = res;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">// 省略样式</span><br><span class="line">&lt;style scoped lang=&quot;scss&quot;&gt;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="看起来似乎没什么问题，实验一下"><a href="#看起来似乎没什么问题，实验一下" class="headerlink" title="看起来似乎没什么问题，实验一下"></a>看起来似乎没什么问题，实验一下</h2><p>哦豁，凉凉</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">VM116:<span class="number">1</span> thirdScriptError</span><br><span class="line">Cannot read property <span class="string">&#x27;attributes&#x27;</span> <span class="keyword">of</span> <span class="literal">undefined</span>;at pages/users/main page lifeCycleMethod onReady <span class="function"><span class="keyword">function</span></span></span><br><span class="line"><span class="function"><span class="title">TypeError</span>: <span class="title">Cannot</span> <span class="title">read</span> <span class="title">property</span> &#x27;<span class="title">attributes</span>&#x27; <span class="title">of</span> <span class="title">undefined</span></span></span><br><span class="line"><span class="function">    <span class="title">at</span> <span class="title">VueComponent</span>.<span class="title">userInfo</span> (<span class="params">http:<span class="comment">//127.0.0.1:46848/appservice/static/js/pages/users/main.js:367:30)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at Watcher.get (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2635:25)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at Watcher.evaluate (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2742:21)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at VueComponent.computedGetter [<span class="keyword">as</span> userInfo] (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2971:17)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at VueComponent.render (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/pages/users/main.js:399:17)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at VueComponent.Vue._render (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:3785:22)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at VueComponent.updateComponent (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2305:21)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at Watcher.get (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2635:25)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at <span class="keyword">new</span> Watcher (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2624:12)</span></span></span></span><br><span class="line"><span class="params"><span class="function">    at mountComponent (http:<span class="comment">//127.0.0.1:46848/appservice/static/js/vendor.js:2309:17)</span></span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>console 里直接报错了，而 <code>UserInfo</code> 也没有正常渲染出来，why？</p>
+<h2 id="冷静分析"><a href="#冷静分析" class="headerlink" title="冷静分析"></a>冷静分析</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">data</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">     <span class="keyword">return</span> &#123;</span><br><span class="line">       <span class="attr">result</span>: <span class="built_in">Object</span></span><br><span class="line">     &#125;;</span><br><span class="line">   &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>因为服务端返回的数据遵循标准 JSONApi 格式(有时候嵌套层级会比较深)，而我这里想偷懒，就定义了一个 result，并没有定义 result 里的具体字段，并给他们赋值。</p>
+<h3 id="按照我的思路"><a href="#按照我的思路" class="headerlink" title="按照我的思路"></a>按照我的思路</h3><p>目前只需要 nick_name 和 avatar 两个字段的值，而这两个字段嵌套的比较深，我不希望在 template 里写这样的绑定代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line"></span><br><span class="line">  &lt;div class=&quot;user-container&quot;&gt;</span><br><span class="line">    &lt;!--背景--&gt;</span><br><span class="line">    &lt;image</span><br><span class="line">      class=&quot;user-bg&quot;</span><br><span class="line">      mode=&quot;aspectFill&quot;</span><br><span class="line">      :src=&quot;result.data.attributes.avatar&quot;</span><br><span class="line">    &gt;</span><br><span class="line">    &lt;/image&gt;</span><br><span class="line">     &lt;!--用户信息--&gt;</span><br><span class="line">    &lt;div class=&quot;user-info&quot;&gt;</span><br><span class="line">      &lt;!--头像--&gt;</span><br><span class="line">      &lt;image</span><br><span class="line">        class=&quot;user-avatar&quot;</span><br><span class="line">        :src=&quot;result.data.attributes.avatar&quot;</span><br><span class="line">      &gt;&lt;/image&gt;</span><br><span class="line">      &lt;!--昵称--&gt;</span><br><span class="line">      &lt;div</span><br><span class="line">        class=&quot;user-nickname&quot;</span><br><span class="line">      &gt;&#123;&#123;result.data.attributes.nick_name&#125;&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure>
+
+<p>太丑陋了！！！</p>
+<p>于是，我在计算属性中定义了一个 <code>userInfo()</code> 方法，将 <code>result.data.attributes</code> 作为它的返回值，当 <code>getUserInfo</code> 方法获取到服务器上的数据后，进行一个<code>this.result = res</code> 操作，这样，计算属性 <code>userInfo</code> 依赖的 <code>result</code> 更新了，<code>userInfo</code> 也会更新，也就完成了UI的渲染。这一切是多么美好啊！</p>
+<h3 id="但是为什么没有按照我的剧本演呢？"><a href="#但是为什么没有按照我的剧本演呢？" class="headerlink" title="但是为什么没有按照我的剧本演呢？"></a>但是为什么没有按照我的剧本演呢？</h3><p>这就涉及我的知识盲区了，Vue 是如何追踪数据变化，实现响应式编程的？</p>
+<p>遇事不顺找 Google，这里我找到三篇比较有参考价值的文章：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Corbusier/Awesome-Vue/issues/8">Vue 进阶 ——- 深入响应式原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://cn.vuejs.org/v2/guide/list.html#%E5%AF%B9%E8%B1%A1%E6%9B%B4%E6%94%B9%E6%A3%80%E6%B5%8B%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">对象更改检测注意事项</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000009396332">vue2.0 初始化请求 JSON 多层嵌套问题</a></li>
+</ul>
+<p>第一篇文章提到了变化检测的问题，</p>
+<blockquote>
+<p>受限于JS及废弃的<code>Object.observe</code>，Vue不能检测到对象属性的添加或删除。由于Vue会在初始化实例时对属性执行<code>getter/setter</code>转化的过程，所以属性必须在<code>data</code>对象上保存才能被转换，如此，才可以让它是响应的。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        <span class="attr">data</span>:&#123;</span><br><span class="line">            <span class="attr">a</span>:<span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">/* &lt; !-- vm.a 是响应的 --&gt; */</span></span><br><span class="line">    </span><br><span class="line">    vm.b = <span class="number">2</span></span><br><span class="line">    <span class="comment">/* &lt; !-- vm.b 是非响应的 --&gt; */</span></span><br></pre></td></tr></table></figure>
+
+<p>Vue不允许在<strong>已创建的实例</strong>上动态添加新的根级响应式属性。但是可以使用<code>Vue.set(object,key,value)</code>方法将响应属性添加到嵌套的对象上：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*&lt; !-- 一定要在实例化之前添加！ -- &gt; */</span></span><br><span class="line">    Vue.set(vm.someObject, <span class="string">&#x27;b&#x27;</span>, <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>第二篇，也就是vue官方的说明：</p>
+<blockquote>
+<p>还是由于 JavaScript 的限制，<strong>Vue 不能检测对象属性的添加或删除</strong>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> vm = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">a</span>: <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// `vm.a` 现在是响应式的</span></span><br><span class="line"></span><br><span class="line">vm.b = <span class="number">2</span></span><br><span class="line"><span class="comment">// `vm.b` 不是响应式的</span></span><br></pre></td></tr></table></figure>
+
+<p>对于<strong>已经创建的实例</strong>，Vue 不能动态添加根级别的响应式属性。但是，可以使用 <code>Vue.set(object, key, value)</code> 方法向嵌套对象添加响应式属性。例如，对于：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> vm = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">userProfile</span>: &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Anika&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>你可以添加一个新的 <code>age</code> 属性到嵌套的 <code>userProfile</code> 对象：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Vue.set(vm.userProfile, <span class="string">&#x27;age&#x27;</span>, <span class="number">27</span>)</span><br></pre></td></tr></table></figure>
+
+</blockquote>
+<p>最后捋一捋思路，为什么会发生错误呢？</p>
+<p>当页面中的 image、div 渲染是，userInfo 数据肯定还没获取到，但是这时候 userInfo() 方法里 result.data.attrbutes 的 result.data 还没有定义，所以就会报错 <code>Cannot read property &#39;attributes&#39; </code>。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>别偷懒，按照后端返回的 JSON 的格式初始化 data 里的字段，如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">data</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="attr">result</span>: &#123;</span><br><span class="line">          <span class="attr">data</span>: &#123;</span><br><span class="line">            <span class="attr">id</span>: <span class="built_in">Number</span>,</span><br><span class="line">            <span class="attr">type</span>: <span class="built_in">String</span>,</span><br><span class="line">            <span class="attr">attributes</span>: <span class="built_in">Object</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/12/30/%E5%8A%A8%E6%80%81%E7%94%9F%E6%88%90%E5%88%86%E4%BA%AB%E5%9B%BE%E7%89%87/" rel="prev" title="动态生成分享图片">
+      <i class="fa fa-chevron-left"></i> 动态生成分享图片
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/09/10/DiffUtil+LiveData%E5%AE%9E%E7%8E%B0%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0%E5%8F%8A%E5%8A%A0%E8%BD%BD%E6%9B%B4%E5%A4%9A/" rel="next" title="DiffUtil、LiveData 的应用">
+      DiffUtil、LiveData 的应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">需求描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UserInfo-%E7%BB%84%E6%88%90"><span class="nav-number">2.</span> <span class="nav-text">UserInfo 组成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%A7%E6%A6%82%E9%95%BF%E8%BF%99%E6%A0%B7"><span class="nav-number">3.</span> <span class="nav-text">大概长这样</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%BF%94%E5%9B%9E%E7%9A%84%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">服务端返回的数据格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UserInfo-%E7%9A%84%E4%BB%A3%E7%A0%81%E9%9D%9E%E5%B8%B8%E7%AE%80%E5%8D%95"><span class="nav-number">5.</span> <span class="nav-text">UserInfo 的代码非常简单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9C%8B%E8%B5%B7%E6%9D%A5%E4%BC%BC%E4%B9%8E%E6%B2%A1%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%8C%E5%AE%9E%E9%AA%8C%E4%B8%80%E4%B8%8B"><span class="nav-number">6.</span> <span class="nav-text">看起来似乎没什么问题，实验一下</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%B7%E9%9D%99%E5%88%86%E6%9E%90"><span class="nav-number">7.</span> <span class="nav-text">冷静分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E6%88%91%E7%9A%84%E6%80%9D%E8%B7%AF"><span class="nav-number">7.1.</span> <span class="nav-text">按照我的思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%86%E6%98%AF%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B2%A1%E6%9C%89%E6%8C%89%E7%85%A7%E6%88%91%E7%9A%84%E5%89%A7%E6%9C%AC%E6%BC%94%E5%91%A2%EF%BC%9F"><span class="nav-number">7.2.</span> <span class="nav-text">但是为什么没有按照我的剧本演呢？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">8.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

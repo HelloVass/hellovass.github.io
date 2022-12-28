@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="写在最前本文描述了如何实现该需求的思路，代码可能不通用，但是该思路应该可以解决很多类似的需求…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态生成分享图片">
+<meta property="og:url" content="http://yoursite.com/2017/12/30/%E5%8A%A8%E6%80%81%E7%94%9F%E6%88%90%E5%88%86%E4%BA%AB%E5%9B%BE%E7%89%87/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="写在最前本文描述了如何实现该需求的思路，代码可能不通用，但是该思路应该可以解决很多类似的需求…">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_1.jpg">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_2.jpg">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_3.jpg">
+<meta property="article:published_time" content="2017-12-29T16:19:00.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.281Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Glide">
+<meta property="article:tag" content="异步">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_1.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2017/12/30/%E5%8A%A8%E6%80%81%E7%94%9F%E6%88%90%E5%88%86%E4%BA%AB%E5%9B%BE%E7%89%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>动态生成分享图片 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/30/%E5%8A%A8%E6%80%81%E7%94%9F%E6%88%90%E5%88%86%E4%BA%AB%E5%9B%BE%E7%89%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          动态生成分享图片
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-12-30 00:19:00" itemprop="dateCreated datePublished" datetime="2017-12-30T00:19:00+08:00">2017-12-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="写在最前"><a href="#写在最前" class="headerlink" title="写在最前"></a>写在最前</h2><p>本文描述了如何实现该需求的思路，代码可能<strong>不通用</strong>，但是该思路应该可以解决很多类似的需求…</p>
+<span id="more"></span>
+<h2 id="需要分享的内容"><a href="#需要分享的内容" class="headerlink" title="需要分享的内容"></a>需要分享的内容</h2><ul>
+<li>上半部分，1-4张图片</li>
+<li>下半部分，包含很多细小的东西，签名、用户名、用户头像、二维码图片…</li>
+<li>​…</li>
+</ul>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_1.jpg" alt="dynamic_shareview_post_image_1"></p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>因为我的需要还是比较复杂的（主要来自于上半部分的排列规则），所以直接 extends 了 ViewGroup 来 layout 这些子 View，然后用数据填充这些布局，然后创建分享 Bitmap。</p>
+<h3 id="对-ViewGroup-里的元素做一个抽象"><a href="#对-ViewGroup-里的元素做一个抽象" class="headerlink" title="对 ViewGroup 里的元素做一个抽象"></a>对 ViewGroup 里的元素做一个抽象</h3><p>对自定义View（我们就叫它 DynamicShareView 好了），它关心的是如何拿到<strong>上半部分的 View</strong> 和<strong>下半部分的 View</strong>，所以这里定义一个 Adapter 接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Adapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 获取封面个数</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">getCoverCount</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 获取封面 View</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function">View <span class="title">getImage</span><span class="params">(ViewGroup viewGroup, <span class="keyword">int</span> position)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 获取底部 View</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function">View <span class="title">getBottom</span><span class="params">(ViewGroup viewGroup)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对调用者来说，我们只需要调用 <code>DynamicShareView</code> 实例的 <code>setAdapter</code> 方法，然后将一个实现了 <code>Adapter 接口的对象</code>传给它，接着 <code>DynamicShareView</code> 会将这些 <code>View</code> 挨个添加到进来，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAdapter</span><span class="params">(<span class="meta">@NonNull</span> Adapter adapter)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   mAdapter = adapter;</span><br><span class="line"></span><br><span class="line">   removeAllViews(); <span class="comment">// 移除所有子View</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 添加图片</span></span><br><span class="line">   <span class="keyword">int</span> imageCount = Math.min(mAdapter.getCoverCount(), MAX_COUNT);</span><br><span class="line">   <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; imageCount; index++) &#123;</span><br><span class="line"></span><br><span class="line">     View image = mAdapter.getImage(<span class="keyword">this</span>, index);</span><br><span class="line">     addView(image);</span><br><span class="line">     mImages.add(image);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 添加底部</span></span><br><span class="line">   View bottomLayout = mAdapter.getBottom(<span class="keyword">this</span>);</span><br><span class="line">   mBottomLayout = bottomLayout;</span><br><span class="line">   addView(bottomLayout, <span class="keyword">new</span> LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这步完成之后，才是重头戏，我们需要自己来 <code>measure</code> 内部的子 <code>View</code>，计算出 <code>DynamicShareView</code> 的宽高。</p>
+<h3 id="测量高度-amp-布局"><a href="#测量高度-amp-布局" class="headerlink" title="测量高度&amp;布局"></a>测量高度&amp;布局</h3><p>这里的实现，emmmmmmmmm，复杂度和产品的需求成正比。栗如，我这里的复杂度主要来自上半部分的排列规则：</p>
+<p>1.一张封面时，封面的宽高等于屏幕的宽度</p>
+<p>2.两张封面时，封面的宽度等于屏幕的宽度，高度为屏幕宽度的一半，上下排列</p>
+<p>3.三张封面时，封面的高度等于屏幕宽度的一半，前两张图片占一行，均分；第三张图片独占一行</p>
+<p>4.// 省略…</p>
+<p>怎么破，这里，我定义了一个 Rule 接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Rule</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">measureChildren</span><span class="params">(<span class="keyword">int</span> screenWidth, <span class="keyword">int</span> screenHeight, <span class="keyword">int</span> spacing, View... children)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">layoutChildren</span><span class="params">(<span class="keyword">int</span> screenWidth, <span class="keyword">int</span> screenHeight, <span class="keyword">int</span> spacing, View... children)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后定义5个子类来<strong>测量</strong>和<strong>布局</strong>，如下图：</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_2.jpg" alt="策略模式实现测量和布局"></p>
+<p>Rule1Impl 对应只有 1 个封面的情况，Rule2Impl 对应有 2 个封面的情况，以此类推。BottomRule 负责下半部分子 <code>View</code> 的<strong>测量和布局</strong>。当然，如果你喜欢，也可以写成一坨代码来 <code>work</code>。我们先来看下，<code>onMeasure</code> 方法长咋样吧。</p>
+<h4 id="onMeasure-步骤"><a href="#onMeasure-步骤" class="headerlink" title="onMeasure 步骤"></a>onMeasure 步骤</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">super</span>.onMeasure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">int</span> widthSize = MeasureSpec.getSize(widthMeasureSpec);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">int</span> heightSize = MeasureSpec.getSize(heightMeasureSpec);</span><br><span class="line">   <span class="keyword">int</span> heightMode = MeasureSpec.getMode(heightMeasureSpec);</span><br><span class="line"></span><br><span class="line">   mActualWidth = widthSize; <span class="comment">// 宽度等于屏幕宽度</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">switch</span> (mImages.size()) &#123;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">       mRule1.measureChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>));</span><br><span class="line">       <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">       mRule2.measureChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>),</span><br><span class="line">           mImages.get(<span class="number">1</span>));</span><br><span class="line">       <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">       mRule3.measureChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>),</span><br><span class="line">           mImages.get(<span class="number">1</span>), mImages.get(<span class="number">2</span>));</span><br><span class="line">       <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">       mRule4.measureChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>),</span><br><span class="line">           mImages.get(<span class="number">1</span>), mImages.get(<span class="number">2</span>), mImages.get(<span class="number">3</span>));</span><br><span class="line">       <span class="keyword">break</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 测量底部高度</span></span><br><span class="line">   mBottomRule.measureChildren(mActualWidth, mActualHeight, mSpacing, mBottomLayout);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 获得实际高度</span></span><br><span class="line">   mActualHeight = mActualWidth + mBottomLayout.getMeasuredHeight();</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 设置 ViewGroup 尺寸</span></span><br><span class="line">   setMeasuredDimension(mActualWidth,</span><br><span class="line">       heightMode == MeasureSpec.EXACTLY ? heightSize : mActualHeight);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="layout-步骤"><a href="#layout-步骤" class="headerlink" title="layout 步骤"></a>layout 步骤</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onLayout</span><span class="params">(<span class="keyword">boolean</span> changed, <span class="keyword">int</span> l, <span class="keyword">int</span> t, <span class="keyword">int</span> r, <span class="keyword">int</span> b)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mImages == <span class="keyword">null</span> || mImages.isEmpty()) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (mImages.size()) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        mRule1.layoutChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        mRule2.layoutChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>),</span><br><span class="line">            mImages.get(<span class="number">1</span>));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        mRule3.layoutChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>), mImages.get(<span class="number">1</span>),</span><br><span class="line">            mImages.get(<span class="number">2</span>));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">        mRule4.layoutChildren(mActualWidth, mActualHeight, mSpacing, mImages.get(<span class="number">0</span>), mImages.get(<span class="number">1</span>),</span><br><span class="line">            mImages.get(<span class="number">2</span>), mImages.get(<span class="number">3</span>));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mBottomRule.layoutChildren(mActualWidth, mActualHeight, mSpacing, mBottomLayout);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>看上去是不是很干净呢23333！</p>
+<h3 id="静态-View-的布局-amp-测量"><a href="#静态-View-的布局-amp-测量" class="headerlink" title="静态 View 的布局&amp;测量"></a>静态 View 的布局&amp;测量</h3><p>这里和上半部分不同，不需要根据业务动态排列子 View，所以使用一个 xxxx.xml 来布局，如图：</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/dynamic_shareview_post_image_3.jpg" alt="下半部分View"></p>
+<blockquote>
+<p>NOTE:这里的根布局，没有写 <code>layout_height=match_parent</code>，因为下半部分的高度实际上应由内部的子 <code>View</code> 高度来决定！这也就是说，我们进行下半部分测量的时候，我们需要自己计算下半部分的高度到底是多少，这样，才能得到 <code>DynamicShareView</code> 的高度数值！那么问题来了，如何测量 <code>layout_heigh=wrap_content</code> 的 <code>View</code>的高度呢？看代码:</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BottomRule</span> <span class="keyword">extends</span> <span class="title">AbsRule</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">BottomRule</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(context);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">measureChildren</span><span class="params">(<span class="keyword">int</span> screenWidth, <span class="keyword">int</span> screenHeight, <span class="keyword">int</span> spacing, View... children)</span> </span>&#123;</span><br><span class="line">    measureManually2(children[<span class="number">0</span>], screenWidth);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">layoutChildren</span><span class="params">(<span class="keyword">int</span> screenWidth, <span class="keyword">int</span> screenHeight, <span class="keyword">int</span> spacing, View... children)</span> </span>&#123;</span><br><span class="line">    children[<span class="number">0</span>].layout(<span class="number">0</span>, screenWidth, screenWidth, screenHeight);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbsRule</span> <span class="keyword">implements</span> <span class="title">Rule</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> Context mContext;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">AbsRule</span><span class="params">(<span class="meta">@NonNull</span> Context context)</span> </span>&#123;</span><br><span class="line">    mContext = context;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">measureManually2</span><span class="params">(View target, <span class="keyword">int</span> widthSize)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(widthSize, View.MeasureSpec.EXACTLY);</span><br><span class="line">    <span class="keyword">int</span> heightMeasureSpec =</span><br><span class="line">        View.MeasureSpec.makeMeasureSpec((<span class="number">1</span> &lt;&lt; <span class="number">30</span>) - <span class="number">1</span>, View.MeasureSpec.AT_MOST);</span><br><span class="line">    target.measure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看到 <code>measureManually2</code> 这个方法，我想机智的童鞋已经豁然开朗了。至于为什么可以用这种方式测量出 <code>layout_width=wrap_content</code> 的 <code>View</code> 的高度，答案在 《Android开发艺术探索》一书中的 <strong>自定义View</strong><br>一章。</p>
+<h3 id="implements-Adapter-的坑"><a href="#implements-Adapter-的坑" class="headerlink" title="implements Adapter 的坑"></a>implements Adapter 的坑</h3><p>上面讲过只要实现 <code>Adapter</code> 这个接口就可以了，然而实际上，能否成功生成图片的关键也在这里，稍微不注意，就会陷入<strong>异步问题</strong>的深坑中。</p>
+<h4 id="如何加载图片呢"><a href="#如何加载图片呢" class="headerlink" title="如何加载图片呢"></a>如何加载图片呢</h4><p>主流方案一般是用 <code>Picasso、Glide</code> 这样的图片加载库，这里，我使用的是 <code>Glide</code>。那直接 <code>Glide.with().load().into ...</code> 不就万事大吉了嘛！nonono，不是这样滴，因为 <code>Glide</code> 加载图片的过程是<strong>异步</strong>的，也就是说 <code>ImageView</code> 可能已经全部添加到 <code>DynamicShareView</code> 了，onMeasure、layout 的步骤也完成了，但图片还未从网络、磁盘加载完，<code>ImageView</code> 里的 <code>Bitmap</code> 是不存在的 。这时，我们再这么做：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">share</span><span class="params">(View target)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 测量 DynamicShareView 的大小</span></span><br><span class="line">   measureManually(target, ScreenUtil.getScreenWidth(mContext),</span><br><span class="line">       ScreenUtil.getScreenWidth(mContext) + DensityUtil.dip2px(mContext, <span class="number">175.0F</span>));</span><br><span class="line"><span class="comment">// 布局 DynamicShareView</span></span><br><span class="line">   target.layout(<span class="number">0</span>, <span class="number">0</span>, target.getMeasuredWidth(), target.getMeasuredHeight());</span><br><span class="line">   <span class="comment">//  生成 Bitmap</span></span><br><span class="line">   Bitmap bitmap = generateBitmap(target, target.getMeasuredWidth(), target.getMeasuredHeight());</span><br><span class="line"></span><br><span class="line">   <span class="comment">//  将 Bitmap 保存为临时文件</span></span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">     saveBitmap(bitmap);</span><br><span class="line">   &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">     e.printStackTrace();</span><br><span class="line">   &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">     e.printStackTrace();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   mContext.startActivity(createShareIntent());</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成的 <code>Bitmap</code> 很可能是没有图片的。因为这些图片都是需要 <code>Glide</code> 去<strong>远程图片服务器</strong>加载，解析后才能得到的。而我们并不知道加载这些图片需要多久，甚至都没有等待这些加载工作完成，就直接填充数据到 <code>DynamicShareView</code> 上，然后满怀期待地生成 <code>Bitmap</code> 了…</p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>简单来说，就是在知道图片全部加载完成之后，我们再生成最后的分享图，关键就是等！</p>
+<p>这里我使用了一个<strong>计数器</strong>，每当 <code>Glide</code> 加载完成，拿到 <code>Bitmap</code> 后，我就让<strong>计数器</strong>+1，当<strong>计数器等于需要加载的图片个数时</strong>，回调。如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Glide.with(viewGroup.getContext())</span><br><span class="line">          .load(mImages.get(position).getImageUrl())</span><br><span class="line">          .asBitmap()</span><br><span class="line">          .into(<span class="keyword">new</span> SimpleTarget&lt;Bitmap&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResourceReady</span><span class="params">(Bitmap resource,</span></span></span><br><span class="line"><span class="params"><span class="function">                GlideAnimation&lt;? <span class="keyword">super</span> Bitmap&gt; glideAnimation)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">              ivCover.setImageBitmap(resource);</span><br><span class="line">              mloadImageCount++;</span><br><span class="line">              <span class="keyword">if</span> (mloadImageCount == getCoverCount() + <span class="number">1</span>) &#123;</span><br><span class="line">                mOnImageLoadedListener.onImageLoaded();</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>外部构造 Adapter 实例时，传入一个 OnImageLoadedListener 即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyAdapter 的签名</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">MyAdapter</span><span class="params">(<span class="meta">@NonNull</span> Context context, List&lt;Image&gt; images, <span class="meta">@NonNull</span> Bottom bottom,</span></span></span><br><span class="line"><span class="params"><span class="function">      <span class="meta">@NonNull</span> OnImageLoadedListener onImageLoadedListener)</span> </span>&#123;</span><br><span class="line">      </span><br><span class="line"> &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="优化-amp-思考"><a href="#优化-amp-思考" class="headerlink" title="优化&amp;思考"></a>优化&amp;思考</h2><ul>
+<li>Bitmap 的生成其实是一个耗时的操作，能否搬移到工作线程中</li>
+<li>有没有比计数器更好的实现来解决异步问题</li>
+<li>该实现有没有 leak memory 的风险</li>
+<li>如果下半部分的文字内容很长，是否会导致 OOM</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/Glide/" rel="tag"># Glide</a>
+              <a href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag"># 异步</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/12/07/%E8%BD%B2%E7%88%B7%E7%9A%84%E5%87%8F%E8%82%A5%E6%97%A5%E8%AE%B0/" rel="prev" title="轲爷的减肥日记">
+      <i class="fa fa-chevron-left"></i> 轲爷的减肥日记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/07/29/%E5%85%B3%E4%BA%8E%20Vue%20%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86%E7%9A%84%E5%9B%B0%E6%83%91/" rel="next" title="关于 Vue 响应式原理的困惑">
+      关于 Vue 响应式原理的困惑 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%89%8D"><span class="nav-number">1.</span> <span class="nav-text">写在最前</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E5%88%86%E4%BA%AB%E7%9A%84%E5%86%85%E5%AE%B9"><span class="nav-number">2.</span> <span class="nav-text">需要分享的内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9-ViewGroup-%E9%87%8C%E7%9A%84%E5%85%83%E7%B4%A0%E5%81%9A%E4%B8%80%E4%B8%AA%E6%8A%BD%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">对 ViewGroup 里的元素做一个抽象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E9%87%8F%E9%AB%98%E5%BA%A6-amp-%E5%B8%83%E5%B1%80"><span class="nav-number">3.2.</span> <span class="nav-text">测量高度&amp;布局</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#onMeasure-%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.2.1.</span> <span class="nav-text">onMeasure 步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#layout-%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.2.2.</span> <span class="nav-text">layout 步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%99%E6%80%81-View-%E7%9A%84%E5%B8%83%E5%B1%80-amp-%E6%B5%8B%E9%87%8F"><span class="nav-number">3.3.</span> <span class="nav-text">静态 View 的布局&amp;测量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#implements-Adapter-%E7%9A%84%E5%9D%91"><span class="nav-number">3.4.</span> <span class="nav-text">implements Adapter 的坑</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%8A%A0%E8%BD%BD%E5%9B%BE%E7%89%87%E5%91%A2"><span class="nav-number">3.4.1.</span> <span class="nav-text">如何加载图片呢</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.5.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96-amp-%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">优化&amp;思考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

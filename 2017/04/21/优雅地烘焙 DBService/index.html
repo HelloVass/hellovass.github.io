@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="写在最前  记得大二那年第一次接触 GreenDao 这个神奇的数据库，惊叹道，哇，原来代码还能这么写啊，不用自己手撸 SQLiteDatabase，不用写那些麻烦的 SQL 语句，编程还真是一件 “轻松” 的事情呢2333。然而，时隔多年，当我再次看到自己曾经留在项目里的那段代码时，相顾无言，惟有泪千行…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优雅地烘焙 DBService">
+<meta property="og:url" content="http://yoursite.com/2017/04/21/%E4%BC%98%E9%9B%85%E5%9C%B0%E7%83%98%E7%84%99%20DBService/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="写在最前  记得大二那年第一次接触 GreenDao 这个神奇的数据库，惊叹道，哇，原来代码还能这么写啊，不用自己手撸 SQLiteDatabase，不用写那些麻烦的 SQL 语句，编程还真是一件 “轻松” 的事情呢2333。然而，时隔多年，当我再次看到自己曾经留在项目里的那段代码时，相顾无言，惟有泪千行…">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%B1%BB%E5%9B%BE.png">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%9B%BE.png">
+<meta property="article:published_time" content="2017-04-21T10:30:05.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.280Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="依赖倒置">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%B1%BB%E5%9B%BE.png">
+
+<link rel="canonical" href="http://yoursite.com/2017/04/21/%E4%BC%98%E9%9B%85%E5%9C%B0%E7%83%98%E7%84%99%20DBService/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>优雅地烘焙 DBService | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/21/%E4%BC%98%E9%9B%85%E5%9C%B0%E7%83%98%E7%84%99%20DBService/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          优雅地烘焙 DBService
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-04-21 18:30:05" itemprop="dateCreated datePublished" datetime="2017-04-21T18:30:05+08:00">2017-04-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="写在最前"><a href="#写在最前" class="headerlink" title="写在最前"></a>写在最前</h2><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=463462465&auto=0&height=66"></iframe>
+
+<p>记得大二那年第一次接触 GreenDao 这个<strong>神奇</strong>的数据库，惊叹道，哇，原来代码还能这么写啊，不用自己手撸 SQLiteDatabase，不用写那些麻烦的 SQL 语句，编程还真是一件 “轻松” 的事情呢2333。然而，时隔多年，当我再次看到自己曾经留在项目里的那段代码时，相顾无言，惟有泪千行…</p>
+<span id="more"></span>
+
+<h2 id="自己挖的坑，哭着也要填完"><a href="#自己挖的坑，哭着也要填完" class="headerlink" title="自己挖的坑，哭着也要填完"></a>自己挖的坑，哭着也要填完</h2><p>在此，向川神和小飞飞道歉，哈哈，让你们一直用着我当年的拙劣之作，实在抱歉，你们那时候一定很想打死我吧！</p>
+<h3 id="新的类图，更强的封装"><a href="#新的类图，更强的封装" class="headerlink" title="新的类图，更强的封装"></a>新的类图，更强的封装</h3><p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%B1%BB%E5%9B%BE.png" alt="类图"></p>
+<h3 id="目录结构看起来是这样的"><a href="#目录结构看起来是这样的" class="headerlink" title="目录结构看起来是这样的"></a>目录结构看起来是这样的</h3><p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/greenDao%E5%B0%81%E8%A3%85%E5%90%8E%E7%9A%84%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="目录结构"></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><h3 id="数据库版本"><a href="#数据库版本" class="headerlink" title="数据库版本"></a>数据库版本</h3><p>greenDao3.x，3.x版本的 greenDao 采用注解+apt 的方式生成 PO（数据持久化对象），和以前的定义 Generator 方式相比，真的简洁了不少。</p>
+<h3 id="设计模式-amp-法则"><a href="#设计模式-amp-法则" class="headerlink" title="设计模式&amp;法则"></a>设计模式&amp;法则</h3><ul>
+<li>抽象工厂</li>
+<li>依赖倒置</li>
+</ul>
+<h2 id="产品类族"><a href="#产品类族" class="headerlink" title="产品类族"></a>产品类族</h2><h3 id="DBService"><a href="#DBService" class="headerlink" title="DBService"></a>DBService</h3><p>仅包含一个 AbsDaoDelegate 的引用，通过建造者模式创建它的实例。源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DBService</span>&lt;<span class="title">T</span>, <span class="title">K</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> AbsDaoDelegate&lt;T, K&gt; mDaoDelegate;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">DBService</span><span class="params">(Builder&lt;T, K&gt; builder)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mDaoDelegate = builder.mDaoDelegate;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> AbsDaoDelegate&lt;T, K&gt; <span class="title">getDaoDelegate</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mDaoDelegate;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span>&lt;<span class="title">T</span>, <span class="title">K</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AbsDaoDelegate&lt;T, K&gt; mDaoDelegate;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder&lt;T, K&gt; <span class="title">setDaoDelegate</span><span class="params">(AbsDaoDelegate&lt;T, K&gt; daoDelegate)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      mDaoDelegate = daoDelegate;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">checkEmptyFields</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (mDaoDelegate == <span class="keyword">null</span>) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;core dao can&#x27;t be null&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DBService&lt;T, K&gt; <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      checkEmptyFields();</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DBService&lt;&gt;(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>注意，DBService 是一个泛型类，泛型 T 代表了我们定义的 PO（数据持久化对象），泛型 K 代表了 PO 的<strong>主键类型</strong>。不要急，稍后会给出如何定义 PO 的栗子。</p>
+<h3 id="AbsDaoDelegate"><a href="#AbsDaoDelegate" class="headerlink" title="AbsDaoDelegate"></a>AbsDaoDelegate</h3><ul>
+<li>实现了 DataSource 接口，提供了开发中需要的 60% 的方法</li>
+<li>代理模式，本身不做 CUID 操作，全部交由 greenDao 生成的 XXDao 来完成</li>
+<li>…</li>
+</ul>
+<p>源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbsDaoDelegate</span>&lt;<span class="title">T</span>, <span class="title">K</span>&gt; <span class="keyword">implements</span> <span class="title">DataSource</span>&lt;<span class="title">T</span>, <span class="title">K</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">protected</span> AbstractDao&lt;T, K&gt; mAbstractDao;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">AbsDaoDelegate</span><span class="params">(AbstractDao&lt;T, K&gt; abstractDao)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao = abstractDao;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(T data)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.insert(data);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addAll</span><span class="params">(List&lt;T&gt; dataList)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.insertInTx(dataList);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">(T data)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.delete(data);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteByKey</span><span class="params">(K k)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.deleteByKey(k);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteByKeys</span><span class="params">(List&lt;K&gt; keyList)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.deleteByKeyInTx(keyList);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteByCondition</span><span class="params">(WhereCondition whereCondition)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.queryBuilder()</span><br><span class="line">        .where(whereCondition)</span><br><span class="line">        .buildDelete()</span><br><span class="line">        .executeDeleteWithoutDetachingEntities();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteAll</span><span class="params">(List&lt;T&gt; dataList)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.deleteInTx(dataList);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.update(t);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateAll</span><span class="params">(List&lt;T&gt; dataList)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.updateInTx(dataList);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertOrReplace</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.insertOrReplace(t);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertOrReplace</span><span class="params">(List&lt;T&gt; dataList)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.insertOrReplaceInTx(dataList);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> T <span class="title">queryByKey</span><span class="params">(K k)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mAbstractDao.load(k);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">queryByPage</span><span class="params">(<span class="keyword">int</span> pageNum)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mAbstractDao.queryBuilder().offset(<span class="number">10</span> * (pageNum - <span class="number">1</span>)).limit(<span class="number">10</span>).list();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">queryByCondition</span><span class="params">(WhereCondition whereCondition, Property sort)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mAbstractDao.queryBuilder().where(whereCondition).orderDesc(sort).list();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">queryAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mAbstractDao.loadAll();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mAbstractDao.deleteAll();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="工厂类族"><a href="#工厂类族" class="headerlink" title="工厂类族"></a>工厂类族</h2><h3 id="抽象工厂-DBServiceFactory"><a href="#抽象工厂-DBServiceFactory" class="headerlink" title="抽象工厂 DBServiceFactory"></a>抽象工厂 DBServiceFactory</h3><ul>
+<li>定义了创建 DBService 的方法，至于如何创建工厂，交给具体工厂（实现了抽象工厂的类）来决定</li>
+</ul>
+<p>源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DBServiceFactory</span>&lt;<span class="title">T</span>, <span class="title">K</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function">DBService&lt;T, K&gt; <span class="title">createDBService</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="DBServiceStore"><a href="#DBServiceStore" class="headerlink" title="DBServiceStore"></a>DBServiceStore</h3><ul>
+<li>定义了创建 DBService 的方法，看起来和 DBServiceFactory 有点儿像，但意义不同。商店并不负责造产品，只是根据用户传入的<strong>工厂</strong>来提供对应的产品 DBService，自己并不会负责去造产品。如果是这样的话，那商店未免也太辛苦了不是吗？</li>
+</ul>
+<p>源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">DBServiceStore</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">abstract</span> &lt;T, K&gt; <span class="function">DBService&lt;T, K&gt; <span class="title">createDBService</span><span class="params">(DBServiceFactory&lt;T, K&gt; factory)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="DBHelper"><a href="#DBHelper" class="headerlink" title="DBHelper"></a>DBHelper</h3><p>和 2.x 时代的写法相比并没有太大的区别，这里就直接贴代码了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DBHelper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> DBHelper sDBHelper;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> DaoMaster mDaoMaster;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> DaoSession mDaoSession;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> DBHelper <span class="title">getInstance</span><span class="params">(Context context, String dbName)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (sDBHelper == <span class="keyword">null</span>) &#123;</span><br><span class="line">      </span><br><span class="line">      sDBHelper = <span class="keyword">new</span> DBHelper(context, dbName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sDBHelper;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> DaoSession <span class="title">getDaoSession</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mDaoSession;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="title">DBHelper</span><span class="params">(Context context, String dbName)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    DaoMaster.DevOpenHelper devOpenHelper =</span><br><span class="line">        <span class="keyword">new</span> DaoMaster.DevOpenHelper(context.getApplicationContext(), dbName, <span class="keyword">null</span>);</span><br><span class="line">    mDaoMaster = <span class="keyword">new</span> DaoMaster(devOpenHelper.getWritableDatabase());</span><br><span class="line">    mDaoSession = mDaoMaster.newSession();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="PO-定义"><a href="#PO-定义" class="headerlink" title="PO 定义"></a>PO 定义</h3><p>也就是类图中 User 的声明，greenDao 3.x 之后，我们可以使用注解来声明一个 PO，然后 build 一下，greenDao 会自动在 greendao 这个包目录（包目录可以根据自己的喜好指定）下生成我们需要的 DaoMaster、DaoSession、UserDao。 私以为，这些由 apt 自动生成的 class ，我们最好不要改动！！！</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>前面讲了这么多，不过是介绍我的封装思路而已，那么实际项目中怎么使用呢？其实写这篇博客也是给自己做备忘2333…</p>
+<h3 id="PeroDBServiceStore"><a href="#PeroDBServiceStore" class="headerlink" title="PeroDBServiceStore"></a>PeroDBServiceStore</h3><p>implements 自 DBServiceStore，代表 DBService 商店，我们需要 XXDBService 的时候，只需要调用 createDBService 方法，将具体的工厂 XXDBServiceFactory 作为参数传入即可。</p>
+<p>源码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PeroDBServiceStore</span> <span class="keyword">extends</span> <span class="title">DBServiceStore</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="title">PeroDBServiceStore</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">PeroDBServiceStoreSingletonHolder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> PeroDBServiceStore sInstance = <span class="keyword">new</span> PeroDBServiceStore();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> PeroDBServiceStore <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> PeroDBServiceStoreSingletonHolder.sInstance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="keyword">public</span> &lt;T, K&gt; <span class="function">DBService&lt;T, K&gt; <span class="title">createDBService</span><span class="params">(DBServiceFactory&lt;T, K&gt; factory)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> factory.createDBService();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="具体工厂"><a href="#具体工厂" class="headerlink" title="具体工厂"></a>具体工厂</h2><p>implements 自 DBServiceFactory，生产具体产品，然后提供给商店，最后提供给我们这些<strong>消费者</strong>。</p>
+<ol>
+<li>根据需要定义 PO</li>
+<li>根据 PO 定义 XXDaoDelegate</li>
+<li>根据 XXDaoDelegate 定义 XXDBService</li>
+<li>根据 XXDBService 定义 XXDBServiceFactory</li>
+</ol>
+<p>当然，很多时候可以简化，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDBServiceFactory</span> <span class="keyword">implements</span> <span class="title">DBServiceFactory</span>&lt;<span class="title">User</span>, <span class="title">String</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="title">UserDBServiceFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserDBServiceFactory <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> UserDBServiceFactory();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> DBService&lt;User, String&gt; <span class="title">createDBService</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DBService.Builder&lt;User, String&gt;				   ().setDaoDelegate(provideDaoDelegate()).build();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> AbsDaoDelegate&lt;User, String&gt; <span class="title">provideDaoDelegate</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> AbsDaoDelegate&lt;User, String&gt;(</span><br><span class="line">        DBHelper.getInstance(App.getInstance(), <span class="string">&quot;pero_db&quot;</span>).getDaoSession().getUserDao()) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里，我只定义了一个 UserDBServiceFactory，其它的都是用<strong>匿名对象</strong>实现了。当然，这是为了简化代码，大部分情况下都是可以满足的，毕竟 DataSource 接口定义了很多常用的方法，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DataSource</span>&lt;<span class="title">T</span>, <span class="title">K</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">add</span><span class="params">(T data)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">addAll</span><span class="params">(List&lt;T&gt; dataList)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">delete</span><span class="params">(T data)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">deleteByKey</span><span class="params">(K k)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">deleteByKeys</span><span class="params">(List&lt;K&gt; keyList)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">deleteByCondition</span><span class="params">(WhereCondition whereCondition)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">deleteAll</span><span class="params">(List&lt;T&gt; dataList)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">(T t)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">updateAll</span><span class="params">(List&lt;T&gt; dataList)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">insertOrReplace</span><span class="params">(T t)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">insertOrReplace</span><span class="params">(List&lt;T&gt; dataList)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function">T <span class="title">queryByKey</span><span class="params">(K k)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function">List&lt;T&gt; <span class="title">queryByPage</span><span class="params">(<span class="keyword">int</span> pageNum)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function">List&lt;T&gt; <span class="title">queryByCondition</span><span class="params">(WhereCondition whereCondition, Property sort)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function">List&lt;T&gt; <span class="title">queryAll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候，我们 save 一个 User 的时候可以这么写了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PeroDBServiceStore.getInstance().createDBService(UserDBServiceFactory.create())</span><br><span class="line">  		.getDaoDelegate()</span><br><span class="line">        .add(user); <span class="comment">// save user to db</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>// 因为懒，省略其他的栗子了</p>
+<h2 id="疑问-amp-解答"><a href="#疑问-amp-解答" class="headerlink" title="疑问&amp;解答"></a>疑问&amp;解答</h2><h3 id="兄弟，那我需要更骚的操作怎么办？"><a href="#兄弟，那我需要更骚的操作怎么办？" class="headerlink" title="兄弟，那我需要更骚的操作怎么办？"></a>兄弟，那我需要更骚的操作怎么办？</h3><p>比如，我需要根据 User 的某个属性（比如用户 Id）来获取数据，怎么破？</p>
+<h3 id="解答"><a href="#解答" class="headerlink" title="解答"></a>解答</h3><p><del>额，这个骚操作，在 DataSource 里确实不怎么好定义（至少我当时没想好）</del>，可以破。在 XXDBServiceFactory 里定义 XXDaoDelegate，实现你的骚操作。调用的时候，这么来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PeroDBServiceStore.getInstance().createDBService(UserDBServiceFactory.create())</span><br><span class="line">  		.getDaoDelegate()</span><br><span class="line">  		.queryByCondition(UserDao.Properties.UserId.eq(userId),UserDao.Properties.createdAt);</span><br></pre></td></tr></table></figure>
+
+
+
+<p><del>可能不够优雅 233333，总之我看着是有点儿不爽，哪天有空再改改…</del></p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>五一假期，在空间看到学弟组织了一波钱塘江烧烤+KTV，撸着烤串，唱歌歌，就这么唱出自己的大学人生，仔细想想，就是有这样的骚操作呢！可惜，还是少了几个妹纸啊233333</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E4%BE%9D%E8%B5%96%E5%80%92%E7%BD%AE/" rel="tag"># 依赖倒置</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/04/16/%E9%87%8D%E6%9E%84%EF%BC%8C%E6%97%A0%E9%9C%80%E6%95%AC%E7%95%8F/" rel="prev" title="重构，无需敬畏">
+      <i class="fa fa-chevron-left"></i> 重构，无需敬畏
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/07/29/%E8%82%A5%E7%9A%82%E6%B3%A1%E3%80%81%E5%8D%B0%E8%B1%A1%E4%B8%8E%E5%87%8F%E8%82%A5/" rel="next" title="肥皂泡、印象与减肥">
+      肥皂泡、印象与减肥 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%89%8D"><span class="nav-number">1.</span> <span class="nav-text">写在最前</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%B7%B1%E6%8C%96%E7%9A%84%E5%9D%91%EF%BC%8C%E5%93%AD%E7%9D%80%E4%B9%9F%E8%A6%81%E5%A1%AB%E5%AE%8C"><span class="nav-number">2.</span> <span class="nav-text">自己挖的坑，哭着也要填完</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E7%9A%84%E7%B1%BB%E5%9B%BE%EF%BC%8C%E6%9B%B4%E5%BC%BA%E7%9A%84%E5%B0%81%E8%A3%85"><span class="nav-number">2.1.</span> <span class="nav-text">新的类图，更强的封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E7%9C%8B%E8%B5%B7%E6%9D%A5%E6%98%AF%E8%BF%99%E6%A0%B7%E7%9A%84"><span class="nav-number">2.2.</span> <span class="nav-text">目录结构看起来是这样的</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">3.</span> <span class="nav-text">思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%89%88%E6%9C%AC"><span class="nav-number">3.1.</span> <span class="nav-text">数据库版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-amp-%E6%B3%95%E5%88%99"><span class="nav-number">3.2.</span> <span class="nav-text">设计模式&amp;法则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E7%B1%BB%E6%97%8F"><span class="nav-number">4.</span> <span class="nav-text">产品类族</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DBService"><span class="nav-number">4.1.</span> <span class="nav-text">DBService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AbsDaoDelegate"><span class="nav-number">4.2.</span> <span class="nav-text">AbsDaoDelegate</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%8E%82%E7%B1%BB%E6%97%8F"><span class="nav-number">5.</span> <span class="nav-text">工厂类族</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82-DBServiceFactory"><span class="nav-number">5.1.</span> <span class="nav-text">抽象工厂 DBServiceFactory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DBServiceStore"><span class="nav-number">5.2.</span> <span class="nav-text">DBServiceStore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DBHelper"><span class="nav-number">5.3.</span> <span class="nav-text">DBHelper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PO-%E5%AE%9A%E4%B9%89"><span class="nav-number">5.4.</span> <span class="nav-text">PO 定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PeroDBServiceStore"><span class="nav-number">6.1.</span> <span class="nav-text">PeroDBServiceStore</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%B7%A5%E5%8E%82"><span class="nav-number">7.</span> <span class="nav-text">具体工厂</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E9%97%AE-amp-%E8%A7%A3%E7%AD%94"><span class="nav-number">8.</span> <span class="nav-text">疑问&amp;解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%84%E5%BC%9F%EF%BC%8C%E9%82%A3%E6%88%91%E9%9C%80%E8%A6%81%E6%9B%B4%E9%AA%9A%E7%9A%84%E6%93%8D%E4%BD%9C%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F"><span class="nav-number">8.1.</span> <span class="nav-text">兄弟，那我需要更骚的操作怎么办？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E7%AD%94"><span class="nav-number">8.2.</span> <span class="nav-text">解答</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">9.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

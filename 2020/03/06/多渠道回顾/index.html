@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言自从入职上家之后，一年多的时间里就基本没有碰过多渠道了（叹息）。 总之，回顾下吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多渠道回顾">
+<meta property="og:url" content="http://yoursite.com/2020/03/06/%E5%A4%9A%E6%B8%A0%E9%81%93%E5%9B%9E%E9%A1%BE/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="前言自从入职上家之后，一年多的时间里就基本没有碰过多渠道了（叹息）。 总之，回顾下吧。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/android%20studio%20%E5%9B%BE%E5%BD%A2%E5%8C%96%E7%AD%BE%E5%90%8D.png">
+<meta property="og:image" content="https://source.android.google.cn/security/images/apk-v2-validation.png?hl=zh-cn">
+<meta property="og:image" content="https://source.android.google.cn/security/images/apk-before-after-signing.png?hl=zh-cn">
+<meta property="article:published_time" content="2020-03-06T10:15:02.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.281Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="签名机制">
+<meta property="article:tag" content="多渠道">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/android%20studio%20%E5%9B%BE%E5%BD%A2%E5%8C%96%E7%AD%BE%E5%90%8D.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/03/06/%E5%A4%9A%E6%B8%A0%E9%81%93%E5%9B%9E%E9%A1%BE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>多渠道回顾 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/06/%E5%A4%9A%E6%B8%A0%E9%81%93%E5%9B%9E%E9%A1%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多渠道回顾
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-06 18:15:02" itemprop="dateCreated datePublished" datetime="2020-03-06T18:15:02+08:00">2020-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>自从入职上家之后，一年多的时间里就基本没有碰过多渠道了（叹息）。</p>
+<p>总之，回顾下吧。</p>
+<span id="more"></span>
+
+<h1 id="多渠道"><a href="#多渠道" class="headerlink" title="多渠道"></a>多渠道</h1><p>多渠道也叫多渠道打包。</p>
+<p>为什么需要多渠道打包呢？一个包能解决的事情为毛这么麻烦呢？产出一个包不也能发布到各个应用市场嘛。</p>
+<p>如果所在的公司没有以下需求：</p>
+<ul>
+<li>统计哪个渠道用户变多</li>
+<li>哪个渠道用户黏性强</li>
+<li>哪个渠道需要个性化的设计</li>
+<li>…</li>
+</ul>
+<p>确实不需要！</p>
+<p>我们通过 <code>Android</code> 提供的 <code>API</code> 可以获取到的信息有：</p>
+<ul>
+<li>应用的版本号</li>
+<li>版本名称</li>
+<li>系统版本</li>
+<li>机型</li>
+<li>…</li>
+</ul>
+<p>但是唯独渠道，即应用商店的信息是没有办法从系统中获取到的。只能人为地在 apk 中添加<strong>渠道信息</strong>。</p>
+<p>多渠道打包，需要关注的事情：</p>
+<ul>
+<li>将渠道信息写入 apk</li>
+<li>将 apk 中的渠道信息传输到后端</li>
+</ul>
+<p>打包会经过签名这个步骤，而 Android 签名有 2种不同的方式：</p>
+<ul>
+<li>Android 7.0 之前，使用 v1 签名，是 jar signature，源自 JDK</li>
+<li>Android 7.0 之后，引入 v2 签名，是 Android 特有的 apk signature</li>
+</ul>
+<p>使用区别：</p>
+<p>使用 v2 方式签名，7.0 以下的系统安装应用会失败<br>使用 v1 方式签名，7.0 和 7.0 以下的都 OK</p>
+<p>Android Studio 的图形界面可以同时选择两种签名方式，7.0 以下使用 v1，7.0 以上选择 v2，如图：</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/android%20studio%20%E5%9B%BE%E5%BD%A2%E5%8C%96%E7%AD%BE%E5%90%8D.png" alt="Android Studio 图形化签名"></p>
+<p>以下是 apk 安装过程中签名验证的流程，如图：</p>
+<p><img src="https://source.android.google.cn/security/images/apk-v2-validation.png?hl=zh-cn" alt="apk 安装过程签名校验"></p>
+<ul>
+<li>UNCHANGED 代表 Android 7.0以下流程</li>
+<li>NEW 代表 Android 7.0以上流程</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultSigningConfig</span> <span class="keyword">implements</span> <span class="title">SigningConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> mV1SigningEnabled = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> mV2SigningEnabled = <span class="keyword">true</span>;</span><br></pre></td></tr></table></figure>
+
+<p>v1、v2 签名默认都是启用的，如果想禁用，可以在对应的地方加上：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">signingConfigs&#123;</span><br><span class="line">    release&#123;</span><br><span class="line">        v2SigningEnabled <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>v1、v2 有啥区别呢？</p>
+<p>本质区别就在于签名的方式，首先 apk 本身是 zip 格式文件。</p>
+<p>v2 签名后和签名前的差异：</p>
+<p><img src="https://source.android.google.cn/security/images/apk-before-after-signing.png?hl=zh-cn" alt="v2 和 v1签名对比"></p>
+<p>签名前：</p>
+<ul>
+<li>压缩的文件内容源数据</li>
+<li>压缩的目录源数据</li>
+<li>目录结束标识结构</li>
+</ul>
+<p>签名后：</p>
+<ul>
+<li>压缩的文件内容源数据</li>
+<li>签名区块</li>
+<li>压缩的目录源数据</li>
+<li>目录结束标识结构</li>
+</ul>
+<p>多了一个区块，用于签名验证。如果其他3区块被修改了，都逃不过 v2 验证，直接导致验证失败，所以 v2 比 v1 更加安全。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://item.jd.com/12325825.html">Android 组件化架构</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" rel="tag"># 签名机制</a>
+              <a href="/tags/%E5%A4%9A%E6%B8%A0%E9%81%93/" rel="tag"># 多渠道</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/04/Pipeline%20%E6%89%A9%E5%B1%95/" rel="prev" title="Pipeline 扩展">
+      <i class="fa fa-chevron-left"></i> Pipeline 扩展
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/08/Interview%C2%B7Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AF%87/" rel="next" title="写给面试的·Activity生命周期篇">
+      写给面试的·Activity生命周期篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E6%B8%A0%E9%81%93"><span class="nav-number">2.</span> <span class="nav-text">多渠道</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

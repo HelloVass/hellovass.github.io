@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简单说明手动调用 View 的 measure(int widthMeasureSpec,int heightMeasureSpec) 方法来得到 View 的宽高。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="手动测量 View 的宽高">
+<meta property="og:url" content="http://yoursite.com/2016/10/04/%E6%89%8B%E5%8A%A8%E6%B5%8B%E9%87%8F%20View%20%E7%9A%84%E5%AE%BD%E9%AB%98/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="简单说明手动调用 View 的 measure(int widthMeasureSpec,int heightMeasureSpec) 方法来得到 View 的宽高。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-10-04T08:24:57.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.281Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="所以然">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2016/10/04/%E6%89%8B%E5%8A%A8%E6%B5%8B%E9%87%8F%20View%20%E7%9A%84%E5%AE%BD%E9%AB%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>手动测量 View 的宽高 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/04/%E6%89%8B%E5%8A%A8%E6%B5%8B%E9%87%8F%20View%20%E7%9A%84%E5%AE%BD%E9%AB%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          手动测量 View 的宽高
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-10-04 16:24:57" itemprop="dateCreated datePublished" datetime="2016-10-04T16:24:57+08:00">2016-10-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android-%E5%B0%8F%E4%BA%8B/" itemprop="url" rel="index"><span itemprop="name">Android 小事</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="简单说明"><a href="#简单说明" class="headerlink" title="简单说明"></a>简单说明</h2><p>手动调用 View 的 <code>measure(int widthMeasureSpec,int heightMeasureSpec)</code> 方法来得到 View 的宽高。</p>
+<span id="more"></span>
+
+<h2 id="根据-View-的-LayoutParams-以下几种情况"><a href="#根据-View-的-LayoutParams-以下几种情况" class="headerlink" title="根据 View 的 LayoutParams 以下几种情况"></a>根据 View 的 LayoutParams 以下几种情况</h2><h3 id="具体数值（dp-px）"><a href="#具体数值（dp-px）" class="headerlink" title="具体数值（dp/px）"></a>具体数值（dp/px）</h3><p>举个栗子，宽高都是 100 px，这时候，有我们来手动拼装合适的 MeasureSpec：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 手动测量 View 的宽高,当 View 的宽高是精确值时</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> target 需要测量的 View</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> widthSize 宽度</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> heightSize 高度</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">meaureManually</span><span class="params">(View target, <span class="keyword">int</span> widthSize, <span class="keyword">int</span> heightSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);</span><br><span class="line">    <span class="keyword">int</span> heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);</span><br><span class="line">    target.measure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="wrap-content"><a href="#wrap-content" class="headerlink" title="wrap_content"></a>wrap_content</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 手动测量 View 的宽高,当 View 的宽高是 wrap_content 时</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> target 需要测量的View</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">measueManually</span><span class="params">(View target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> widthMeasureSpec = MeasureSpec.makeMeasureSpec((<span class="number">1</span> &lt;&lt; <span class="number">30</span>) - <span class="number">1</span>, MeasureSpec.AT_MOST);</span><br><span class="line">    <span class="keyword">int</span> heightMeasureSpec = MeasureSpec.makeMeasureSpec((<span class="number">1</span> &lt;&lt; <span class="number">30</span>) - <span class="number">1</span>, MeasureSpec.AT_MOST);</span><br><span class="line">    target.measure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有点儿小技巧，我将本来应该传入的 <code>widthSize</code> 和 <code>heightSize</code> 改为了 <code>(1&lt;&lt;30)-1</code> ,看过 MeasureSpec 的源码就可以知道，这个特殊的 int 值就是 View 理论上能支持的最大值。</p>
+<blockquote>
+<p>View 的尺寸使用 30 位二进制来表示，也就是说最大是 30 个 1（即 2^30 -1），也就是 (1&lt;&lt;30)-1。</p>
+</blockquote>
+<h3 id="match-parent"><a href="#match-parent" class="headerlink" title="match_parent"></a>match_parent</h3><p>上一段 ViewGroup 的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Does the hard part of measureChildren: figuring out the MeasureSpec to</span></span><br><span class="line"><span class="comment">     * pass to a particular child. This method figures out the right MeasureSpec</span></span><br><span class="line"><span class="comment">     * for one dimension (height or width) of one child view.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * The goal is to combine information from our MeasureSpec with the</span></span><br><span class="line"><span class="comment">     * LayoutParams of the child to get the best possible results. For example,</span></span><br><span class="line"><span class="comment">     * if the this view knows its size (because its MeasureSpec has a mode of</span></span><br><span class="line"><span class="comment">     * EXACTLY), and the child has indicated in its LayoutParams that it wants</span></span><br><span class="line"><span class="comment">     * to be the same size as the parent, the parent should ask the child to</span></span><br><span class="line"><span class="comment">     * layout given an exact size.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> spec The requirements for this view</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> padding The padding of this view for the current dimension and</span></span><br><span class="line"><span class="comment">     *        margins, if applicable</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> childDimension How big the child wants to be in the current</span></span><br><span class="line"><span class="comment">     *        dimension</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a MeasureSpec integer for the child</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getChildMeasureSpec</span><span class="params">(<span class="keyword">int</span> spec, <span class="keyword">int</span> padding, <span class="keyword">int</span> childDimension)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> specMode = MeasureSpec.getMode(spec);</span><br><span class="line">        <span class="keyword">int</span> specSize = MeasureSpec.getSize(spec);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> size = Math.max(<span class="number">0</span>, specSize - padding);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> resultSize = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> resultMode = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (specMode) &#123;</span><br><span class="line">        <span class="comment">// Parent has imposed an exact size on us</span></span><br><span class="line">        <span class="keyword">case</span> MeasureSpec.EXACTLY:</span><br><span class="line">            <span class="keyword">if</span> (childDimension &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                resultSize = childDimension;</span><br><span class="line">                resultMode = MeasureSpec.EXACTLY;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (childDimension == LayoutParams.MATCH_PARENT) &#123;</span><br><span class="line">                <span class="comment">// Child wants to be our size. So be it.</span></span><br><span class="line">                <span class="comment">// 如果换我们来构造此时的 MeasureSpec，我们需要知道这个 size 的大小，然而并不能，所以放弃</span></span><br><span class="line">                resultSize = size;</span><br><span class="line">                resultMode = MeasureSpec.EXACTLY;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (childDimension == LayoutParams.WRAP_CONTENT) &#123;</span><br><span class="line">                <span class="comment">// Child wants to determine its own size. It can&#x27;t be</span></span><br><span class="line">                <span class="comment">// bigger than us.</span></span><br><span class="line">                resultSize = size;</span><br><span class="line">                resultMode = MeasureSpec.AT_MOST;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Parent has imposed a maximum size on us</span></span><br><span class="line">        <span class="keyword">case</span> MeasureSpec.AT_MOST:</span><br><span class="line">            <span class="keyword">if</span> (childDimension &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// Child wants a specific size... so be it</span></span><br><span class="line">                resultSize = childDimension;</span><br><span class="line">                resultMode = MeasureSpec.EXACTLY;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (childDimension == LayoutParams.MATCH_PARENT) &#123;</span><br><span class="line">                <span class="comment">// Child wants to be our size, but our size is not fixed.</span></span><br><span class="line">                <span class="comment">// Constrain child to not be bigger than us.</span></span><br><span class="line">                <span class="comment">// 如果换我们来构造此时的 MeasureSpec，我们需要知道这个 size 的大小，然而并不能，所以放弃</span></span><br><span class="line">                resultSize = size;</span><br><span class="line">                resultMode = MeasureSpec.AT_MOST;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (childDimension == LayoutParams.WRAP_CONTENT) &#123;</span><br><span class="line">                <span class="comment">// Child wants to determine its own size. It can&#x27;t be</span></span><br><span class="line">                <span class="comment">// bigger than us.</span></span><br><span class="line">                resultSize = size;</span><br><span class="line">                resultMode = MeasureSpec.AT_MOST;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Parent asked to see how big we want to be</span></span><br><span class="line">        <span class="keyword">case</span> MeasureSpec.UNSPECIFIED:</span><br><span class="line">            <span class="keyword">if</span> (childDimension &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// Child wants a specific size... let him have it</span></span><br><span class="line">                resultSize = childDimension;</span><br><span class="line">                resultMode = MeasureSpec.EXACTLY;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (childDimension == LayoutParams.MATCH_PARENT) &#123;</span><br><span class="line">                <span class="comment">// Child wants to be our size... find out how big it should</span></span><br><span class="line">                <span class="comment">// be</span></span><br><span class="line">                resultSize = View.sUseZeroUnspecifiedMeasureSpec ? <span class="number">0</span> : size;</span><br><span class="line">                resultMode = MeasureSpec.UNSPECIFIED;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (childDimension == LayoutParams.WRAP_CONTENT) &#123;</span><br><span class="line">                <span class="comment">// Child wants to determine its own size.... find out how</span></span><br><span class="line">                <span class="comment">// big it should be</span></span><br><span class="line">                resultSize = View.sUseZeroUnspecifiedMeasureSpec ? <span class="number">0</span> : size;</span><br><span class="line">                resultMode = MeasureSpec.UNSPECIFIED;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//noinspection ResourceType</span></span><br><span class="line">        <span class="keyword">return</span> MeasureSpec.makeMeasureSpec(resultSize, resultMode);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>发现如果要构造在 View 的宽高为 match_parent 时的 MeasureSpec，<strong>需要</strong>知道 parentSize，而此时因为无法知道 parentSize，所以<strong>直接放弃</strong>。</p>
+<h2 id="NOTE"><a href="#NOTE" class="headerlink" title="NOTE"></a>NOTE</h2><p>注意网上的一些<strong>奇怪代码</strong>，还是举两个常见的栗子：</p>
+<h3 id="栗子一"><a href="#栗子一" class="headerlink" title="栗子一"></a>栗子一</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">view.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);</span><br></pre></td></tr></table></figure>
+
+<h3 id="栗子二"><a href="#栗子二" class="headerlink" title="栗子二"></a>栗子二</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> widthMeasureSpec = MeasureSpec.makeMeasureSpec(-<span class="number">1</span>, MeasureSpec.UNSPECIFIED);</span><br><span class="line"><span class="keyword">int</span> heightMeasureSpec = MeasureSpec.makeMeasureSpec(-<span class="number">1</span>, MeasureSpec.UNSPECIFIED);</span><br><span class="line">view.measure(widthMeasureSpec, heightMeasureSpec);</span><br></pre></td></tr></table></figure>
+
+<p>第二个栗子最搞，现在在 Android Studio 里这么写编译器会直接给出错误提示，但是我以前经常能看到这样的代码（<del>不明白原理的时候，我以前也这么做2333</del>）</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/%E6%89%80%E4%BB%A5%E7%84%B6/" rel="tag"># 所以然</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/10/20/%E6%9D%AD%E5%9F%8E%E7%9A%84%E9%9B%A8%E9%9B%BE/" rel="prev" title="杭城的雨雾">
+      <i class="fa fa-chevron-left"></i> 杭城的雨雾
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/10/05/Android%20%E7%9A%84%E6%B6%88%E6%81%AF%E6%9C%BA%E5%88%B6/" rel="next" title="Android 的消息机制">
+      Android 的消息机制 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">简单说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE-View-%E7%9A%84-LayoutParams-%E4%BB%A5%E4%B8%8B%E5%87%A0%E7%A7%8D%E6%83%85%E5%86%B5"><span class="nav-number">2.</span> <span class="nav-text">根据 View 的 LayoutParams 以下几种情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E6%95%B0%E5%80%BC%EF%BC%88dp-px%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">具体数值（dp&#x2F;px）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wrap-content"><span class="nav-number">2.2.</span> <span class="nav-text">wrap_content</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#match-parent"><span class="nav-number">2.3.</span> <span class="nav-text">match_parent</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NOTE"><span class="nav-number">3.</span> <span class="nav-text">NOTE</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%97%E5%AD%90%E4%B8%80"><span class="nav-number">3.1.</span> <span class="nav-text">栗子一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%97%E5%AD%90%E4%BA%8C"><span class="nav-number">3.2.</span> <span class="nav-text">栗子二</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

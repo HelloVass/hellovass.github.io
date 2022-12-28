@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。 那么，是什么问题呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kotlin 实现 redux">
+<meta property="og:url" content="http://yoursite.com/2020/03/30/kotlin%E5%AE%9E%E7%8E%B0Redux/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="前言从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。 那么，是什么问题呢？">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-30T09:19:34.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.279Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="rxjava">
+<meta property="article:tag" content="redux">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/03/30/kotlin%E5%AE%9E%E7%8E%B0Redux/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>kotlin 实现 redux | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/30/kotlin%E5%AE%9E%E7%8E%B0Redux/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          kotlin 实现 redux
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-30 17:19:34" itemprop="dateCreated datePublished" datetime="2020-03-30T17:19:34+08:00">2020-03-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>从刚接触 Android 的时候有一些业务场景真的让人蛋疼，虽说不是无解，但问题是解决了，但看着这堆代码总觉得哪里怪怪的。</p>
+<p>那么，是什么问题呢？</p>
+
+
+<div style="position: relative; width: 100%; height: 0; padding-bottom: 75%;">
+    <iframe src="//player.bilibili.com/player.html?aid=73040039&bvid=BV1hE41127pY&cid=124939237&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;">
+    </iframe>
+</div>
+
+
+
+<span id="more"></span>
+
+<h1 id="State-Management"><a href="#State-Management" class="headerlink" title="State Management"></a>State Management</h1><p>React 的理念里有这么一个公式：</p>
+<blockquote>
+<p>UI = render(data)</p>
+</blockquote>
+<p>UI 即用户看到的界面，是一个 <code>render</code>（函数）的执行结果，只接受 <code>data</code>（数据）作为参数。这个函数是一个<strong>纯函数</strong>，所谓纯函数，指的是没有任何副作用，输出完全依赖于输入的函数，两次函数调用，如果输入相同，得到的结果也绝对相同。如此一来，最终的用户界面，在 <code>render</code> 函数确定的情况下完全取决于输入数据。</p>
+<p>对于开发者来说，重要的是区分开哪些属于 <code>data</code>，哪些属于 <code>render</code>，想要更新用户界面，要做的就是更新 <code>data</code>，用户界面自然会做出响应，所以 React 实践的也是“响应式编程”（Reactive Programming）的思想。</p>
+<h2 id="React-的-state"><a href="#React-的-state" class="headerlink" title="React 的 state"></a>React 的 state</h2><p>驱动组件渲染过程的除了 prop，还有 state， state 代表组件的内部状态。由于 React 组件不能修改传入的 prop，所以需要记录自身数据变化，就要使用 state。</p>
+<h2 id="状态分类"><a href="#状态分类" class="headerlink" title="状态分类"></a>状态分类</h2><p>状态分 2 种：</p>
+<ul>
+<li>局部状态：这种由 Component 管理，比如：<ul>
+<li>Progressbar 的当前进度</li>
+<li>TabIndicator 的当前选中 tab</li>
+</ul>
+</li>
+</ul>
+<p>这种状态不需要使用复杂的状态管理方案，靠 Component 维护就好了。</p>
+<ul>
+<li>全局状态：需要在2个及以上的地方共享的状态。比如：<ul>
+<li>用户信息</li>
+<li>用户设置</li>
+<li>购物车</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<p>而这些状态的划分，emmm，没有一个清晰的界限，主要还是靠程序员的经验。但是，单靠 Component 的 setState() 来管理所有的状态是有<a target="_blank" rel="noopener" href="https://weread.qq.com/web/reader/a0b327005d185ca0b5a7803k6ea321b021d6ea9ab1ba605">极限</a>的！</p>
+<p>上述的状态管理方案，对前端童鞋来说已经 8 是问题了，并且还给出了许多优秀的开源框架：</p>
+<ul>
+<li>redux</li>
+<li>mobx</li>
+<li>vuex</li>
+<li>…</li>
+</ul>
+<h2 id="Android-的状态管理方案"><a href="#Android-的状态管理方案" class="headerlink" title="Android 的状态管理方案"></a>Android 的状态管理方案</h2><p>严格来说，从事 Android 开发的童鞋似乎很少在官方文档或者社区上看到<strong>State Management</strong>相关的介绍，实践就更少了，首先，Android 是命令式的（imperative），通过 <code>setText()</code> 类似的命令式 API 来改变 UI，所以大部分 Android 看到上述 <code>UI = render(data)</code> 这样的公式，都会有点摸不着头脑。然后，在那个还没有 Kotlin 的年代，Android 的主流开发语言是 Java，大家最熟悉的就是 OOP 编程， 什么函数式编程，什么纯函数啊，不可变特性啊。。。天顶星人科技？最后的结果就是，大家在这方面思考的少，而现有的系统API、第三方库甚至自己稍微捣鼓捣鼓，也能解决，所以，Android 的 UI 开发体验一直都不如前端。而我本人，也在近些年的工作学习中不断质疑（接触了前端之后），为毛 Android 这些业务代码写起来就是没有前端的香呢？</p>
+<p>虽然 Android 上没有<strong>状态管理</strong>，但是有类似的东东！</p>
+<h3 id="组件间通信"><a href="#组件间通信" class="headerlink" title="组件间通信"></a>组件间通信</h3><p>Android 采取的思路是基于<strong>模块化</strong>的分冶思路，即 App 只是一个壳，按照业务划分为多个子模块，业务与业务之间隔离。在组件化的工程中，由于我们的业务模块间是物理隔离（模块间无法在编译期间访问各自的代码）的，模块间想获取不属于自己的数据（状态）时就会有问题，例如：</p>
+<ul>
+<li><strong>模块A</strong>里的某个 <code>Activity/Fragment</code> 想获取到<strong>模块B</strong>购物车的信息</li>
+<li><strong>模块C</strong>里的某个 <code>Activity</code> 想跳转到<strong>模块A</strong>的某个 <code>Activity</code></li>
+<li><strong>模块D</strong>里的某个 <code>Activity</code> 想调用<strong>模块E</strong>里的某个<strong>方法</strong></li>
+<li>。。。</li>
+</ul>
+<p>Android 里面对的和”状态管理“类似的往往是这些问题。</p>
+<h4 id="路由库"><a href="#路由库" class="headerlink" title="路由库"></a>路由库</h4><p>下面以阿里的 <a target="_blank" rel="noopener" href="https://github.com/alibaba/ARouter">ARouter</a> 为🌰具体进行说明是如何解决<strong>组件间通信</strong>的问题：</p>
+<h5 id="发起路由请求"><a href="#发起路由请求" class="headerlink" title="发起路由请求"></a>发起路由请求</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 跳转并携带参数</span></span><br><span class="line">ARouter.getInstance().build(<span class="string">&quot;/test/1&quot;</span>)</span><br><span class="line">            .withLong(<span class="string">&quot;key1&quot;</span>, <span class="number">666L</span>)</span><br><span class="line">            .withString(<span class="string">&quot;key3&quot;</span>, <span class="string">&quot;888&quot;</span>)</span><br><span class="line">            .withObject(<span class="string">&quot;key4&quot;</span>, <span class="keyword">new</span> Test(<span class="string">&quot;Jack&quot;</span>, <span class="string">&quot;Rose&quot;</span>))</span><br><span class="line">            .navigation();</span><br></pre></td></tr></table></figure>
+
+<h5 id="通过服务注册-amp-发现"><a href="#通过服务注册-amp-发现" class="headerlink" title="通过服务注册&amp;发现"></a>通过服务注册&amp;发现</h5><ol>
+<li>通过依赖注入解耦:服务管理(一) 暴露服务</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 声明接口,其他组件通过接口来调用服务</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloService</span> <span class="keyword">extends</span> <span class="title">IProvider</span> </span>&#123;</span><br><span class="line">    <span class="function">String <span class="title">sayHello</span><span class="params">(String name)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现接口</span></span><br><span class="line"><span class="meta">@Route(path = &quot;/yourservicegroupname/hello&quot;, name = &quot;测试服务&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloServiceImpl</span> <span class="keyword">implements</span> <span class="title">HelloService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">sayHello</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;hello, &quot;</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>通过依赖注入解耦：服务管理(二) 发现服务</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    HelloService helloService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired(name = &quot;/yourservicegroupname/hello&quot;)</span></span><br><span class="line">    HelloService helloService2;</span><br><span class="line"></span><br><span class="line">    HelloService helloService3;</span><br><span class="line"></span><br><span class="line">    HelloService helloService4;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ARouter.getInstance().inject(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1. (推荐)使用依赖注入的方式发现服务,通过注解标注字段,即可使用，无需主动获取</span></span><br><span class="line">    <span class="comment">// Autowired注解中标注name之后，将会使用byName的方式注入对应的字段，不设置name属性，会默认使用byType的方式发现服务(当同一接口有多个实现的时候，必须使用byName的方式发现服务)</span></span><br><span class="line">    helloService.sayHello(<span class="string">&quot;Vergil&quot;</span>);</span><br><span class="line">    helloService2.sayHello(<span class="string">&quot;Vergil&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 使用依赖查找的方式发现服务，主动去发现服务并使用，下面两种方式分别是byName和byType</span></span><br><span class="line">    helloService3 = ARouter.getInstance().navigation(HelloService.class);</span><br><span class="line">    helloService4 = (HelloService) ARouter.getInstance().build(<span class="string">&quot;/yourservicegroupname/hello&quot;</span>).navigation();</span><br><span class="line">    helloService3.sayHello(<span class="string">&quot;Vergil&quot;</span>);</span><br><span class="line">    helloService4.sayHello(<span class="string">&quot;Vergil&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="事件总线"><a href="#事件总线" class="headerlink" title="事件总线"></a>事件总线</h4><p>以 <a target="_blank" rel="noopener" href="https://github.com/greenrobot/EventBus">EventBus</a> 为代表的事件总线库，简化了使用原生通信的复杂度：</p>
+<ul>
+<li>startActivityForResult &amp; onActivityResult</li>
+<li>Broadcast</li>
+<li>LocalBroadcast</li>
+<li>…</li>
+</ul>
+<p>也看似让我们的代码得到解耦？但是，使用不当的同时也为项目埋下了一颗<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26160377">定时💣</a>。</p>
+<h2 id="Android-端-redux-实现"><a href="#Android-端-redux-实现" class="headerlink" title="Android 端 redux 实现"></a>Android 端 redux 实现</h2><p>Android 组件间通信的方案给人的感觉更偏向<strong>通信</strong>而没有<strong>前端状态管理</strong>的那个味儿。那，能不能。。。</p>
+<p>能！</p>
+<p>受到 <a target="_blank" rel="noopener" href="https://github.com/johnpryan/redux.dart">redux</a> 这个项目的启发，我用 <code>kotlin&amp;rxjava</code> 也实现了一个 <code>redux</code>，也可以认为和 Android 平台无关的 redux（没有用到 Android 的类），当然之后也可以像 <a target="_blank" rel="noopener" href="https://github.com/brianegan/flutter_redux">flutter_redux</a> 一样，包一层 Android 相关的类，实现一个 Android 平台的 redux。</p>
+<h3 id="原理简述"><a href="#原理简述" class="headerlink" title="原理简述"></a>原理简述</h3><p>首先非常感谢 kotlin 和 rxjava，kotlin 和 dart 还是蛮相近的，看下 dart 版的 redux 大概就能想出如果用 kotlin 咋实现的，而对着 JavaScript 写有时候就会😳。而 rxjava 基本可以等价于 flutter stream api，所以，实现一个 kt 版的 redux，难度系数大大降低！</p>
+<ol>
+<li>定义函数</li>
+</ol>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// store.kt</span></span><br><span class="line"><span class="keyword">typealias</span> Middleware&lt;State&gt; = (store: IStore&lt;State&gt;, action: Any, next: NextDispatcher) -&gt; Any</span><br><span class="line"></span><br><span class="line"><span class="keyword">typealias</span> NextDispatcher = (action: Any) -&gt; Any</span><br><span class="line"></span><br><span class="line"><span class="keyword">typealias</span> Reducer&lt;State&gt; = (state: State, action: Any) -&gt; State</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>定义 Store 接口</li>
+</ol>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// store.kt</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IStore</span>&lt;<span class="type">State</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> _state: State</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> reducer: Reducer&lt;State&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> middleware: List&lt;Middleware&lt;State&gt;&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> changeController: Subject&lt;State&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> state: State</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> onChange: Observable&lt;State&gt;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">dispatch</span><span class="params">(action: <span class="type">Any</span>)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意这几点：</p>
+<ul>
+<li>changeController 使用 Subject<State> 类型</li>
+<li>onChange 使用 Observeable<State> 类型，其实这里我犯了个错，最早的版本用的 aac 里的 LiveData，因为之前一直以为 <del>LiveData≈Subject</del> 。但后来看到了<a target="_blank" rel="noopener" href="https://juejin.im/post/5cdff0de5188252f5e019bea">把 LiveData 用于事件传递那些坑</a>，结合源码后，我意识到，出事了，这个场景下 LiveData 是不适用的，它会丢失事件，它就不是被设计出来干这件事的！</li>
+</ul>
+<ol start="3">
+<li>Store 实现</li>
+</ol>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// store.kt</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Store</span>&lt;<span class="type">State</span>&gt; <span class="keyword">private</span> <span class="keyword">constructor</span></span>(</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> _state: State,</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> reducer: Reducer&lt;State&gt;,</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> middleware: List&lt;Middleware&lt;State&gt;&gt;,</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> changeController: Subject&lt;State&gt;</span><br><span class="line">) : IStore&lt;State&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">val</span> state: State</span><br><span class="line">        <span class="keyword">get</span>() = _state</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">val</span> onChange: Observable&lt;State&gt;</span><br><span class="line">        <span class="keyword">get</span>() = changeController</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> dispatchers: List&lt;NextDispatcher&gt; = createDispatchers(</span><br><span class="line">        middleware, createReduceAndNotify()</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">dispatch</span><span class="params">(action: <span class="type">Any</span>)</span></span> &#123;</span><br><span class="line">        dispatchers[<span class="number">0</span>](action)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">createDispatchers</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">        middleware: <span class="type">List</span>&lt;<span class="type">Middleware</span>&lt;<span class="type">State</span>&gt;&gt;,</span></span></span><br><span class="line"><span class="params"><span class="function">        reduceAndNotify: <span class="type">NextDispatcher</span></span></span></span><br><span class="line"><span class="params"><span class="function">    )</span></span>: List&lt;NextDispatcher&gt; &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">val</span> dispatchers = mutableListOf(reduceAndNotify)</span><br><span class="line"></span><br><span class="line">        middleware.reversed()</span><br><span class="line">            .map &#123; nextMiddleware: Middleware&lt;State&gt; -&gt;</span><br><span class="line">                <span class="keyword">val</span> next = dispatchers.last()</span><br><span class="line">                dispatchers += &#123; action: Any -&gt;</span><br><span class="line">                    nextMiddleware.invoke(</span><br><span class="line">                        <span class="keyword">this</span>,</span><br><span class="line">                        action,</span><br><span class="line">                        next</span><br><span class="line">                    )</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dispatchers.reversed()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">createReduceAndNotify</span><span class="params">()</span></span>: NextDispatcher &#123;</span><br><span class="line">        <span class="keyword">return</span> &#123; action: Any -&gt;</span><br><span class="line">            <span class="keyword">val</span> state = reducer.invoke(_state, action)</span><br><span class="line">            _state = state</span><br><span class="line">            changeController.onNext(state)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="type">&lt;State&gt;</span> <span class="title">create</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">            initialState: <span class="type">State</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            reducer: <span class="type">Reducer</span>&lt;<span class="type">State</span>&gt;,</span></span></span><br><span class="line"><span class="params"><span class="function">            middleware: <span class="type">List</span>&lt;<span class="type">Middleware</span>&lt;<span class="type">State</span>&gt;&gt; = emptyList()</span></span>,</span><br><span class="line">            changeController: Subject&lt;State&gt; = PublishSubject.create()</span><br><span class="line">        ): IStore&lt;State&gt; = Store(</span><br><span class="line">            _state = initialState,</span><br><span class="line">            reducer = reducer,</span><br><span class="line">            middleware = middleware,</span><br><span class="line">            changeController = changeController</span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>得益于 Kotlin 的函数式特性，这段实现和原版的 dart 相比也没有啰嗦多少😀。这里将 Store 设计为一个不可继承的 class，并且将构造函数的车门也焊死了，创建这个 Store 实例的方法只有 <code>Store#create</code> 函数，通过命名参数，使用者能很清晰的知道传些啥值，不过还是要介绍下 reducer 这个参数。</p>
+<p>reducer:List<Reducer> 合并成的一个 Reducer 对象，这里参考了 JavaScript版 redux 的 combine 函数，贴下代码：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// reducer.kt</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;State&gt;</span> <span class="title">combineReducers</span><span class="params">(reducers: <span class="type">List</span>&lt;<span class="type">Reducer</span>&lt;<span class="type">State</span>&gt;&gt;)</span></span>: Reducer&lt;State&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123; state: State, action: Any -&gt;</span><br><span class="line">        reducers.fold(initial = state) &#123; acc: State, func: Reducer&lt;State&gt; -&gt;</span><br><span class="line">            <span class="keyword">return</span><span class="symbol">@fold</span> func(acc, action)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h1><p>有空再补，算了，还是先补上一些吧。</p>
+<h2 id="AppStore"><a href="#AppStore" class="headerlink" title="AppStore"></a>AppStore</h2><p>创建一个单例 Store（因为该 Store 里的状态是全局的），配置好对应的参数：</p>
+<ul>
+<li>reducer，之前介绍过，略</li>
+<li>middleware，中间件，这里只添加了一个日志中间件</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AppStore.kt</span></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">createStore</span><span class="params">()</span></span>: IStore&lt;AppState&gt; = Store.create(</span><br><span class="line">    initialState = AppState(),</span><br><span class="line">    reducer = combineReducers(listOf(countReducer)),</span><br><span class="line">    middleware = listOf(loggerMiddleware)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AppStore</span> <span class="keyword">private</span> <span class="keyword">constructor</span></span>(</span><br><span class="line">    store: IStore&lt;AppState&gt; = createStore()</span><br><span class="line">) : IStore&lt;AppState&gt; <span class="keyword">by</span> store &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> INSTANCE: AppStore <span class="keyword">by</span> lazy &#123; AppStore() &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/johnpryan/redux.dart">redux</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/brianegan/flutter_redux">flutter_redux</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/5cdff0de5188252f5e019bea">把 LiveData 用于事件传递那些坑</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mengdd/p/flutter-state-management.html">为了弄懂Flutter的状态管理, 我用10种方法改造了counter app</a></li>
+<li><a target="_blank" rel="noopener" href="https://weread.qq.com/web/reader/a0b327005d185ca0b5a7803k6ea321b021d6ea9ab1ba605">深入浅出 React 和 Redux</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/rxjava/" rel="tag"># rxjava</a>
+              <a href="/tags/redux/" rel="tag"># redux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/19/leetcode%C2%B7valid-parentheses/" rel="prev" title="valid-parentheses#20">
+      <i class="fa fa-chevron-left"></i> valid-parentheses#20
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/03/Interview%C2%B7Gradle%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AF%87/" rel="next" title="写给面试的·Gradle 生命周期篇">
+      写给面试的·Gradle 生命周期篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#State-Management"><span class="nav-number">2.</span> <span class="nav-text">State Management</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#React-%E7%9A%84-state"><span class="nav-number">2.1.</span> <span class="nav-text">React 的 state</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="nav-number">2.2.</span> <span class="nav-text">状态分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-%E7%9A%84%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%96%B9%E6%A1%88"><span class="nav-number">2.3.</span> <span class="nav-text">Android 的状态管理方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="nav-number">2.3.1.</span> <span class="nav-text">组件间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1%E5%BA%93"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">路由库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%91%E8%B5%B7%E8%B7%AF%E7%94%B1%E8%AF%B7%E6%B1%82"><span class="nav-number">2.3.1.1.1.</span> <span class="nav-text">发起路由请求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C-amp-%E5%8F%91%E7%8E%B0"><span class="nav-number">2.3.1.1.2.</span> <span class="nav-text">通过服务注册&amp;发现</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E6%80%BB%E7%BA%BF"><span class="nav-number">2.3.1.2.</span> <span class="nav-text">事件总线</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-%E7%AB%AF-redux-%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.4.</span> <span class="nav-text">Android 端 redux 实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86%E7%AE%80%E8%BF%B0"><span class="nav-number">2.4.1.</span> <span class="nav-text">原理简述</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Demo"><span class="nav-number">3.</span> <span class="nav-text">Demo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AppStore"><span class="nav-number">3.1.</span> <span class="nav-text">AppStore</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

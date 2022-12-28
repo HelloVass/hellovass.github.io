@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言 兄dei，Gradle 生命周期有了解过嘛？emmmmmm….那么，来说说 Configuration 阶段 Gradle 干了什么吧emmmmmm….">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写给面试的·Gradle 生命周期篇">
+<meta property="og:url" content="http://yoursite.com/2020/04/03/Interview%C2%B7Gradle%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AF%87/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="前言 兄dei，Gradle 生命周期有了解过嘛？emmmmmm….那么，来说说 Configuration 阶段 Gradle 干了什么吧emmmmmm….">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-03T08:28:11.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.278Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="Gradle">
+<meta property="article:tag" content="构建">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/03/Interview%C2%B7Gradle%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AF%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>写给面试的·Gradle 生命周期篇 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/03/Interview%C2%B7Gradle%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          写给面试的·Gradle 生命周期篇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-03 16:28:11" itemprop="dateCreated datePublished" datetime="2020-04-03T16:28:11+08:00">2020-04-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>兄dei，Gradle 生命周期有了解过嘛？<br>emmmmmm….<br>那么，来说说 Configuration 阶段 Gradle 干了什么吧<br>emmmmmm….</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="Gradle-生命周期"><a href="#Gradle-生命周期" class="headerlink" title="Gradle 生命周期"></a>Gradle 生命周期</h1><p>Gradle 在编译项目时有着它自己的生命周期，从编译开始编译完毕 Gradle 一共要经历 3 个阶段：</p>
+<ul>
+<li>Initialization</li>
+</ul>
+<p>初始化阶段，即执行 Gradle 的初始化配置选项，即执行项目中的 settings.gradle 脚本。</p>
+<ul>
+<li>Configuration</li>
+</ul>
+<p>解析每个 Project 中的 build.gradle 脚本，即解析所有 Project 中的编译选项。解析完成后，Gradle 就生成了一张有向关系图——taskgraph，这面包含了整个 Task 的依赖关系。</p>
+<ul>
+<li>Build</li>
+</ul>
+<p>该阶段是最后的编译运行阶段，即按照 taskgraph 执行编译。</p>
+<p>这三个阶段是宏观把握 Gradle 的核心所在，运行任何 Gradle 指令都会经过这样三个阶段。</p>
+<p>默认的输出是在配置阶段，这时候 Gradle 会执行所有 Task 的配置脚本，即使你执行一个指定的 Task，也有到 Build 阶段，才能够开始执行。</p>
+<h1 id="Gradle-生命周期的监听"><a href="#Gradle-生命周期的监听" class="headerlink" title="Gradle 生命周期的监听"></a>Gradle 生命周期的监听</h1><h2 id="Gradle-耗时-Task-统计"><a href="#Gradle-耗时-Task-统计" class="headerlink" title="Gradle 耗时 Task 统计"></a>Gradle 耗时 Task 统计</h2><p>统计 Task 耗时，收集耗时超过100ms 的 Task，排序之后输出到 build 目录下的xxx.txt 文件中。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 分析 Task，收集耗时超过 100ms 的task，并将日志输出到 build 文件夹下</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> Gradle.<span class="title">analyzeTask</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> clock = Clock()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> execution = mutableListOf&lt;TaskInfo&gt;()</span><br><span class="line"></span><br><span class="line">    addTaskExecutionLifecycle &#123;</span><br><span class="line">        _beforeExecute &#123; task -&gt;</span><br><span class="line">            task.extensions.add(<span class="string">&quot;startAt&quot;</span>, System.currentTimeMillis())</span><br><span class="line">        &#125;</span><br><span class="line">        _afterExecute &#123; task, _ -&gt;</span><br><span class="line">            <span class="comment">// 计算 Task 的执行时间</span></span><br><span class="line">            <span class="keyword">val</span> duration = System.currentTimeMillis() - (task.extensions[<span class="string">&quot;startAt&quot;</span>] <span class="keyword">as</span> <span class="built_in">Long</span>)</span><br><span class="line">            <span class="comment">// 收集超过耗时超过 100ms 的 Task</span></span><br><span class="line">            <span class="keyword">if</span> (duration &gt;= <span class="number">100</span>) &#123;</span><br><span class="line">                execution += TaskInfo(task, duration)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    addBuildLifecycle &#123;</span><br><span class="line">        _buildFinished &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 没有超过 100ms 的 Task，忽略</span></span><br><span class="line">            <span class="keyword">if</span> (execution.isEmpty())</span><br><span class="line">                <span class="keyword">return</span><span class="symbol">@_buildFinished</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 按照耗时排序</span></span><br><span class="line">            execution.sortBy &#123; taskInfo -&gt;</span><br><span class="line">                taskInfo.duration</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 输出内容</span></span><br><span class="line">            <span class="keyword">val</span> outputStr = buildString &#123;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 构建总耗时</span></span><br><span class="line">                <span class="keyword">val</span> buildTimeInSeconds = clock.timesInMs / <span class="number">1000</span></span><br><span class="line">                <span class="keyword">val</span> minutes = buildTimeInSeconds / <span class="number">60</span></span><br><span class="line">                <span class="keyword">val</span> seconds = buildTimeInSeconds % <span class="number">60</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// 构建字符串模板</span></span><br><span class="line">                <span class="keyword">val</span> timeStr = <span class="keyword">when</span> (minutes) &#123;</span><br><span class="line">                    <span class="number">0L</span> -&gt;</span><br><span class="line">                        <span class="string">&quot;<span class="subst">$&#123;seconds&#125;</span>s&quot;</span></span><br><span class="line">                    <span class="keyword">else</span> -&gt;</span><br><span class="line">                        <span class="string">&quot;<span class="subst">$&#123;minutes&#125;</span>m <span class="subst">$&#123;seconds&#125;</span>s (<span class="subst">$&#123;buildTimeInSeconds&#125;</span>s)&quot;</span></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 文本头</span></span><br><span class="line">                append(<span class="string">&quot;Build finished in <span class="subst">$&#123;timeStr&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 添加耗时超过 100ms 的 Task</span></span><br><span class="line">                execution.forEach &#123; taskInfo -&gt;</span><br><span class="line">                    append(</span><br><span class="line">                        String.format(</span><br><span class="line">                            <span class="string">&quot;%7sms %s\n&quot;</span>,</span><br><span class="line">                            taskInfo.duration,</span><br><span class="line">                            taskInfo.task.path</span><br><span class="line">                        )</span><br><span class="line">                    )</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建文件，并将内容写入</span></span><br><span class="line">            <span class="keyword">val</span> file = File(</span><br><span class="line">                gradle.rootProject.buildDir.absolutePath,</span><br><span class="line">                <span class="string">&quot;build_time_records_<span class="subst">$&#123;Date().format(<span class="string">&quot;yyyy-MM-dd-HH-mm-ss&quot;</span>)&#125;</span>.txt&quot;</span></span><br><span class="line">            )</span><br><span class="line">            file.parentFile.mkdirs()</span><br><span class="line">            file.write(outputStr)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>监听 TaskExecutionListener 的 beforeExecute 和 afterExecute，计算每一个 Task 的耗时，并且将耗时大于 100ms 的 Task 收集到 execution 中</li>
+<li>监听 BuildListener 的 buildFinished， build 结束之后将 execution 排序，并且计算总耗时</li>
+<li>最后，将信息写入到 build 目录下的 xxx.txt 文件</li>
+</ol>
+<blockquote>
+<p>PS:这里使用 kotlin 带接收器的扩展函数特性对 addListener 做了简化，让代码看起来更 DSL 一些</p>
+</blockquote>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li>Android 群英传 神兵利器<ul>
+<li>4.8章，Gradle 思考</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Blankj/AucFrameTemplate">Blankj Auc 中统计 Task 耗时的代码</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Gradle/" rel="tag"># Gradle</a>
+              <a href="/tags/%E6%9E%84%E5%BB%BA/" rel="tag"># 构建</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/30/kotlin%E5%AE%9E%E7%8E%B0Redux/" rel="prev" title="kotlin 实现 redux">
+      <i class="fa fa-chevron-left"></i> kotlin 实现 redux
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/05/%E8%BD%B2%E7%88%B7%E7%9A%84%20itx%20%E6%94%92%E6%9C%BA%E4%B9%8B%E6%97%85/" rel="next" title="轲爷的 itx 攒机之旅">
+      轲爷的 itx 攒机之旅 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Gradle-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.</span> <span class="nav-text">Gradle 生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Gradle-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E7%9B%91%E5%90%AC"><span class="nav-number">3.</span> <span class="nav-text">Gradle 生命周期的监听</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Gradle-%E8%80%97%E6%97%B6-Task-%E7%BB%9F%E8%AE%A1"><span class="nav-number">3.1.</span> <span class="nav-text">Gradle 耗时 Task 统计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.</span> <span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

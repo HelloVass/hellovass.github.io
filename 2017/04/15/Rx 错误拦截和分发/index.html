@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言 这感觉已经不对 我最后才了解 一页页不忍翻阅 的情节你好累  这次要做的事是按照业务重构网络层的错误拦截和分发，仅以这段歌词献给两位前同事。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rx 错误拦截和分发">
+<meta property="og:url" content="http://yoursite.com/2017/04/15/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="前言 这感觉已经不对 我最后才了解 一页页不忍翻阅 的情节你好累  这次要做的事是按照业务重构网络层的错误拦截和分发，仅以这段歌词献给两位前同事。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91.png">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%BF%99%E6%A0%B7%E5%AD%90%E5%91%A2.jpg">
+<meta property="article:published_time" content="2017-04-15T13:57:46.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.279Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="rxjava">
+<meta property="article:tag" content="错误分发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91.png">
+
+<link rel="canonical" href="http://yoursite.com/2017/04/15/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Rx 错误拦截和分发 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/15/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rx 错误拦截和分发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-04-15 21:57:46" itemprop="dateCreated datePublished" datetime="2017-04-15T21:57:46+08:00">2017-04-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=434659672&auto=0&height=66"></iframe>
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>这感觉已经不对</p>
+<p>我最后才了解</p>
+<p>一页页不忍翻阅</p>
+<p>的情节你好累</p>
+</blockquote>
+<p>这次要做的事是按照业务重构网络层的<strong>错误拦截和分发</strong>，仅以这段歌词献给两位前同事。</p>
+<span id="more"></span>
+
+<h2 id="整理下逻辑"><a href="#整理下逻辑" class="headerlink" title="整理下逻辑"></a>整理下逻辑<img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91.png" alt="错误拦截以及分发"></h2><h2 id="本次的两个知识点（敲黑板"><a href="#本次的两个知识点（敲黑板" class="headerlink" title="本次的两个知识点（敲黑板"></a>本次的两个知识点（敲黑板</h2><h3 id="onErrorResumeNext-操作符的运用"><a href="#onErrorResumeNext-操作符的运用" class="headerlink" title="onErrorResumeNext 操作符的运用"></a>onErrorResumeNext 操作符的运用</h3><p>这个操作符是干嘛的呢？当错误发生时，使用另一个数据流（Observable）继续发射数据，在返回的 Observable 中是看不到错误信息的。利用这个操作符，我们可以实现把<strong>一个异常信息包装起来再次抛出</strong>。</p>
+<h3 id="CallAdapter-的魔改"><a href="#CallAdapter-的魔改" class="headerlink" title="CallAdapter 的魔改"></a>CallAdapter 的魔改</h3><p>那在哪里拦截异常，然后重新包装再抛出（分发）呢？</p>
+<p>这里先分享下我的好 gay 友 <a target="_blank" rel="noopener" href="http://www.jianshu.com/u/6b372d09b617">YoKey</a> 的<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/f3f0eccbcd6f">方案</a>。youyou 的方案非常简洁，使用一个静态方法，方法里内部根据 server 端返回的 status 来分发错误。调用的时候，就像设置<strong>哨卡</strong>一样，在每个 API 请求的后面带上 <code>RxResultHelper.handleResult()</code> 即可（ps:就是遇到请求比较多的时候，需要设置好几个<strong>哨卡</strong>）。</p>
+<h4 id="我的方案"><a href="#我的方案" class="headerlink" title="我的方案"></a>我的方案</h4><p>其实大体上和 youyou 是如出一辙的，就是设置<strong>哨卡</strong>的地方有点儿不太一样，这里我们再回忆下 API 的形式吧：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 获取验证码</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="meta">@POST(&quot;/sms&quot;)</span> Observable&lt;ServerResult&lt;Params&gt;&gt; fetchSmsCode(<span class="meta">@Body</span> Params params);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>方法调用的返回结果是一个 Observable&lt;ServerResult<Params>，熟悉 Retrofit 的童鞋肯定明白，Retrofit 只能返回一个 ReponseBody，为什么 <code>ReponseBody -&gt;Observable&lt;ServerResult&gt;</code> 了呢？</p>
+<p>聪明的童鞋肯定知道，这里辛勤的老外盆友替我们做了转换的工作，使我们得到了一个 Observable，这才使流式调用有可能。而转换的地方，那应该是一个<strong>适配器没错了</strong>，看看我们的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mRetrofit = <span class="keyword">new</span> Retrofit.Builder().baseUrl(retrofitWrapperFactory.provideBaseUrl())</span><br><span class="line">        .client(retrofitWrapperFactory.createOkHttpClient())</span><br><span class="line">        .addConverterFactory(retrofitWrapperFactory.createGsonConverterFactory())</span><br><span class="line">        .addCallAdapterFactory(retrofitWrapperFactory.createRxJavaCallAdapter()) <span class="comment">// 设置 CallAdapterFactory</span></span><br><span class="line">        .build();</span><br></pre></td></tr></table></figure>
+
+
+
+<p>再仔细想想，这个 CallAdapterFactory 肯定是做了 <code>ResponseBody -&gt; Observable</code> 的转换没错了，如果我们能 custom 这个 Factory，我们就能拿到 Observable，如果在这里给它设置一个错误分发器的话，岂不是美滋滋？</p>
+<h3 id="小课堂"><a href="#小课堂" class="headerlink" title="小课堂"></a>小课堂</h3><p><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/308f3c54abdd">自定义 CallAdapter</a>，可能是因为我用的是最新版的 Retrofit 吧，CallAdapter 的源码已经有些改变了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Adapts a &#123;<span class="doctag">@link</span> Call&#125; with response type &#123;<span class="doctag">@code</span> R&#125; into the type of &#123;<span class="doctag">@code</span> T&#125;. Instances are</span></span><br><span class="line"><span class="comment"> * created by &#123;<span class="doctag">@linkplain</span> Factory a factory&#125; which is</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@linkplain</span> Retrofit.Builder#addCallAdapterFactory(Factory) installed&#125; into the &#123;<span class="doctag">@link</span> Retrofit&#125;</span></span><br><span class="line"><span class="comment"> * instance.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">CallAdapter</span>&lt;<span class="title">R</span>, <span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns the value type that this adapter uses when converting the HTTP response body to a Java</span></span><br><span class="line"><span class="comment">   * object. For example, the response type for &#123;<span class="doctag">@code</span> Call&lt;Repo&gt;&#125; is &#123;<span class="doctag">@code</span> Repo&#125;. This type</span></span><br><span class="line"><span class="comment">   * is used to prepare the &#123;<span class="doctag">@code</span> call&#125; passed to &#123;<span class="doctag">@code</span> #adapt&#125;.</span></span><br><span class="line"><span class="comment">   * &lt;p&gt;</span></span><br><span class="line"><span class="comment">   * Note: This is typically not the same type as the &#123;<span class="doctag">@code</span> returnType&#125; provided to this call</span></span><br><span class="line"><span class="comment">   * adapter&#x27;s factory.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function">Type <span class="title">responseType</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns an instance of &#123;<span class="doctag">@code</span> T&#125; which delegates to &#123;<span class="doctag">@code</span> call&#125;.</span></span><br><span class="line"><span class="comment">   * &lt;p&gt;</span></span><br><span class="line"><span class="comment">   * For example, given an instance for a hypothetical utility, &#123;<span class="doctag">@code</span> Async&#125;, this instance would</span></span><br><span class="line"><span class="comment">   * return a new &#123;<span class="doctag">@code</span> Async&lt;R&gt;&#125; which invoked &#123;<span class="doctag">@code</span> call&#125; when run.</span></span><br><span class="line"><span class="comment">   * &lt;pre&gt;&lt;code&gt;</span></span><br><span class="line"><span class="comment">   * &amp;#64;Override</span></span><br><span class="line"><span class="comment">   * public &amp;lt;R&amp;gt; Async&amp;lt;R&amp;gt; adapt(final Call&amp;lt;R&amp;gt; call) &#123;</span></span><br><span class="line"><span class="comment">   *   return Async.create(new Callable&amp;lt;Response&amp;lt;R&amp;gt;&amp;gt;() &#123;</span></span><br><span class="line"><span class="comment">   *     &amp;#64;Override</span></span><br><span class="line"><span class="comment">   *     public Response&amp;lt;R&amp;gt; call() throws Exception &#123;</span></span><br><span class="line"><span class="comment">   *       return call.execute();</span></span><br><span class="line"><span class="comment">   *     &#125;</span></span><br><span class="line"><span class="comment">   *   &#125;);</span></span><br><span class="line"><span class="comment">   * &#125;</span></span><br><span class="line"><span class="comment">   * &lt;/code&gt;&lt;/pre&gt;</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function">T <span class="title">adapt</span><span class="params">(Call&lt;R&gt; call)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Creates &#123;<span class="doctag">@link</span> CallAdapter&#125; instances based on the return type of &#123;<span class="doctag">@linkplain</span></span></span><br><span class="line"><span class="comment">   * Retrofit#create(Class) the service interface&#125; methods.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Returns a call adapter for interface methods that return &#123;<span class="doctag">@code</span> returnType&#125;, or null if it</span></span><br><span class="line"><span class="comment">     * cannot be handled by this factory.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> CallAdapter&lt;?, ?&gt; get(Type returnType, Annotation[] annotations,</span><br><span class="line">        Retrofit retrofit);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Extract the upper bound of the generic parameter at &#123;<span class="doctag">@code</span> index&#125; from &#123;<span class="doctag">@code</span> type&#125;. For</span></span><br><span class="line"><span class="comment">     * example, index 1 of &#123;<span class="doctag">@code</span> Map&lt;String, ? extends Runnable&gt;&#125; returns &#123;<span class="doctag">@code</span> Runnable&#125;.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">static</span> Type <span class="title">getParameterUpperBound</span><span class="params">(<span class="keyword">int</span> index, ParameterizedType type)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> Utils.getParameterUpperBound(index, type);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Extract the raw class type from &#123;<span class="doctag">@code</span> type&#125;. For example, the type representing</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> List&lt;? extends Runnable&gt;&#125; returns &#123;<span class="doctag">@code</span> List.class&#125;.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> Class&lt;?&gt; getRawType(Type type) &#123;</span><br><span class="line">      <span class="keyword">return</span> Utils.getRawType(type);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，别怕，泛型 R 代表是 ResponseBody，泛型 T 代表最终的转换类型，所以，我们的 CallAdapter 这么写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">RxCallAdapterWrapper</span>&lt;<span class="title">R</span>&gt; <span class="keyword">implements</span> <span class="title">CallAdapter</span>&lt;<span class="title">R</span>, <span class="title">Observable</span>&lt;?&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Retrofit mRetrofit;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CallAdapter&lt;R, ?&gt; mWrappedCallAdapter;</span><br><span class="line">  </span><br><span class="line">  	<span class="comment">// ...省略 N 行</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="CallAdapterFactory-需要做点儿什么"><a href="#CallAdapterFactory-需要做点儿什么" class="headerlink" title="CallAdapterFactory 需要做点儿什么"></a>CallAdapterFactory 需要做点儿什么</h4><p>其实需要做的工作很少：</p>
+<ol>
+<li>因为 <code>ResponseBody -&gt; Observable</code> 的工作 RxJavaCallAdapterFactory 已经做了，我们也没必要重新造轮子，包装它！</li>
+<li>我们需要外部传入一个错误分发器。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RxErrorHandlerCallAdapterFactory</span> <span class="keyword">extends</span> <span class="title">CallAdapter</span>.<span class="title">Factory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> RxJavaCallAdapterFactory mRxJavaCallAdapterFactory;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> RxErrorDispatcher mRxErrorDispatcher;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="title">RxErrorHandlerCallAdapterFactory</span><span class="params">(RxErrorDispatcher errorDispatcher)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    mRxJavaCallAdapterFactory = RxJavaCallAdapterFactory.create();</span><br><span class="line">    mRxErrorDispatcher = errorDispatcher;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 省略 N 行</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>OK，到这里，只需要把最后干活的 CallAdapter 写完，就已经完成大部分工作了，不废话，直接上代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">RxCallAdapterWrapper</span>&lt;<span class="title">R</span>&gt; <span class="keyword">implements</span> <span class="title">CallAdapter</span>&lt;<span class="title">R</span>, <span class="title">Observable</span>&lt;?&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Retrofit mRetrofit;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CallAdapter&lt;R, ?&gt; mWrappedCallAdapter;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RxErrorDispatcher mRxErrorDispatcher;</span><br><span class="line"></span><br><span class="line">    RxCallAdapterWrapper(Retrofit retrofit, CallAdapter&lt;R, ?&gt; wrappedCallAdapter,</span><br><span class="line">        RxErrorDispatcher rxErrorDispatcher) &#123;</span><br><span class="line"></span><br><span class="line">      mRetrofit = retrofit;</span><br><span class="line">      mWrappedCallAdapter = wrappedCallAdapter;</span><br><span class="line">      mRxErrorDispatcher = rxErrorDispatcher;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Type <span class="title">responseType</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> mWrappedCallAdapter.responseType();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  	<span class="comment">// 真正的转换在这里</span></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span> <span class="meta">@Override</span> <span class="keyword">public</span> Observable&lt;?&gt; adapt(Call&lt;R&gt; call) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> ((Observable) mWrappedCallAdapter.adapt(call)).onErrorResumeNext(</span><br><span class="line"></span><br><span class="line">          <span class="keyword">new</span> Func1&lt;Throwable, Observable&gt;() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Observable <span class="title">call</span><span class="params">(Throwable throwable)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">              <span class="keyword">return</span> Observable.error(mRxErrorDispatcher.dispatchError(throwable, mRetrofit));</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们关注最后一个方法，这里在 <code>((Observable) mWrappedCallAdapter.adapt(call))</code> 后，我们已经得到了 Observable，接上我们的 onErrorResumeNext 操作符，至于具体错误如何分发，就交给 mRxErrorDispatcher 吧！</p>
+<h4 id="RxErrorDispatcher"><a href="#RxErrorDispatcher" class="headerlink" title="RxErrorDispatcher"></a>RxErrorDispatcher</h4><p>只是一个接口而已，具体的分发还是得根据需求来分发：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RxErrorDispatcher</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function">Throwable <span class="title">dispatchError</span><span class="params">(Throwable throwable, Retrofit retrofit)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>参数里为毛还有一个 Retrofit 呢？额，这里，如果你们的后端和 youyou 一样的话，应该是不需要的，而我这里有些历史遗留问题，所以…额</p>
+<p>如果你仔细看过开头的流程图的话，会发现，如果错误产生，response.body() 返回的是 null，错误信息需要从 response.errorBody() 里取得，为什么会这样子呢，熟练地丢锅给后端…</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%BF%99%E6%A0%B7%E5%AD%90%E5%91%A2.jpg" alt="为什么会这样子呢"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;T&gt; <span class="function">T <span class="title">getErrorBodyAs</span><span class="params">(Response response, Class&lt;T&gt; type, Retrofit retrofit)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (response == <span class="keyword">null</span> || response.errorBody() == <span class="keyword">null</span>) &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Converter&lt;ResponseBody, T&gt; converter = retrofit.responseBodyConverter(type, <span class="keyword">new</span> Annotation[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> converter.convert(response.errorBody());</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>就这样，我多了一段这样的代码来解析<strong>服务器端</strong>返回的错误信息，我能怎么办，我也很绝望啊！</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/rxjava/" rel="tag"># rxjava</a>
+              <a href="/tags/%E9%94%99%E8%AF%AF%E5%88%86%E5%8F%91/" rel="tag"># 错误分发</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/04/15/%E8%BF%9F%E5%88%B0%E7%9A%84%E6%AD%A3%E4%B9%89%E4%B8%8D%E6%98%AF%E6%AD%A3%E4%B9%89/" rel="prev" title="迟到的正义不是正义">
+      <i class="fa fa-chevron-left"></i> 迟到的正义不是正义
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/04/16/%E9%87%8D%E6%9E%84%EF%BC%8C%E6%97%A0%E9%9C%80%E6%95%AC%E7%95%8F/" rel="next" title="重构，无需敬畏">
+      重构，无需敬畏 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E7%90%86%E4%B8%8B%E9%80%BB%E8%BE%91"><span class="nav-number">2.</span> <span class="nav-text">整理下逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E6%AC%A1%E7%9A%84%E4%B8%A4%E4%B8%AA%E7%9F%A5%E8%AF%86%E7%82%B9%EF%BC%88%E6%95%B2%E9%BB%91%E6%9D%BF"><span class="nav-number">3.</span> <span class="nav-text">本次的两个知识点（敲黑板</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#onErrorResumeNext-%E6%93%8D%E4%BD%9C%E7%AC%A6%E7%9A%84%E8%BF%90%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">onErrorResumeNext 操作符的运用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CallAdapter-%E7%9A%84%E9%AD%94%E6%94%B9"><span class="nav-number">3.2.</span> <span class="nav-text">CallAdapter 的魔改</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%96%B9%E6%A1%88"><span class="nav-number">3.2.1.</span> <span class="nav-text">我的方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E8%AF%BE%E5%A0%82"><span class="nav-number">3.3.</span> <span class="nav-text">小课堂</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CallAdapterFactory-%E9%9C%80%E8%A6%81%E5%81%9A%E7%82%B9%E5%84%BF%E4%BB%80%E4%B9%88"><span class="nav-number">3.3.1.</span> <span class="nav-text">CallAdapterFactory 需要做点儿什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RxErrorDispatcher"><span class="nav-number">3.3.2.</span> <span class="nav-text">RxErrorDispatcher</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">4.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

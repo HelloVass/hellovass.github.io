@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="为什么需要组件化组件化之前的项目结构  App 工程 多个业务组件 一个静态的路由，依赖了所有的业务组件，业务组件可以通过 Router 暴露出来的方法跳转到其他业务组件   CommonLibrary 多个技术组件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android组件化实践与探索">
+<meta property="og:url" content="http://yoursite.com/2019/04/02/Android%E7%BB%84%E4%BB%B6%E5%8C%96%E5%AE%9E%E8%B7%B5%E4%B8%8E%E6%8E%A2%E7%B4%A2/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="为什么需要组件化组件化之前的项目结构  App 工程 多个业务组件 一个静态的路由，依赖了所有的业务组件，业务组件可以通过 Router 暴露出来的方法跳转到其他业务组件   CommonLibrary 多个技术组件">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://assets.processon.com/chart_image/5ca44870e4b035b243c08eab.png">
+<meta property="og:image" content="http://assets.processon.com/chart_image/5ca46752e4b08743436256b6.png">
+<meta property="og:image" content="http://assets.processon.com/chart_image/5ca469cce4b0874343625ea8.png">
+<meta property="og:image" content="http://assets.processon.com/chart_image/5ca46d75e4b031d0225bfc60.png">
+<meta property="og:image" content="http://assets.processon.com/chart_image/5ca471e0e4b034408dec0606.png">
+<meta property="article:published_time" content="2019-04-02T03:56:53.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.278Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="组件化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://assets.processon.com/chart_image/5ca44870e4b035b243c08eab.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/04/02/Android%E7%BB%84%E4%BB%B6%E5%8C%96%E5%AE%9E%E8%B7%B5%E4%B8%8E%E6%8E%A2%E7%B4%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android组件化实践与探索 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/02/Android%E7%BB%84%E4%BB%B6%E5%8C%96%E5%AE%9E%E8%B7%B5%E4%B8%8E%E6%8E%A2%E7%B4%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android组件化实践与探索
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-04-02 11:56:53" itemprop="dateCreated datePublished" datetime="2019-04-02T11:56:53+08:00">2019-04-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="为什么需要组件化"><a href="#为什么需要组件化" class="headerlink" title="为什么需要组件化"></a>为什么需要组件化</h2><h3 id="组件化之前的项目结构"><a href="#组件化之前的项目结构" class="headerlink" title="组件化之前的项目结构"></a>组件化之前的项目结构</h3><p><img src="http://assets.processon.com/chart_image/5ca44870e4b035b243c08eab.png" alt="组件化之前的项目结构"></p>
+<ul>
+<li>App 工程<ul>
+<li>多个业务组件</li>
+<li>一个静态的路由，依赖了所有的业务组件，业务组件可以通过 Router 暴露出来的方法跳转到其他业务组件</li>
+</ul>
+</li>
+<li>CommonLibrary<ul>
+<li>多个技术组件</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h4 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h4><ul>
+<li>随着业务的逐渐迭代，App 工程内的业务组件逐渐增多，工程膨胀</li>
+<li>缺少编译隔离，模块之间存在相互依赖的可能</li>
+<li>静态路由，需要手动维护，增加开发成本</li>
+</ul>
+<h3 id="业务组件通信"><a href="#业务组件通信" class="headerlink" title="业务组件通信"></a>业务组件通信</h3><p>仔细思考，业务组件间的通信会有哪几种情况</p>
+<ul>
+<li>跳转需求，通常情况下是组件A跳转到组件B，并且可能需要返回值</li>
+<li>方法调用需求，组件A调用组件B的方法，并且可能有返回值</li>
+</ul>
+<h4 id="跨组件方法调用"><a href="#跨组件方法调用" class="headerlink" title="跨组件方法调用"></a>跨组件方法调用</h4><h5 id="被调用的业务组件下沉"><a href="#被调用的业务组件下沉" class="headerlink" title="被调用的业务组件下沉"></a>被调用的业务组件下沉<img src="http://assets.processon.com/chart_image/5ca46752e4b08743436256b6.png" alt="组件下沉"></h5><p>这种方案最暴力直接，但是问题也最大。只要其他业务组件需要调用，就移动到不合理的层级，容易导致下层越来越臃肿，也就失去了组件化的灵魂。</p>
+<h5 id="原生提供的方案"><a href="#原生提供的方案" class="headerlink" title="原生提供的方案"></a>原生提供的方案</h5><ul>
+<li>LocalBroadcast</li>
+<li>AIDL</li>
+<li>ContentProvider</li>
+</ul>
+<h5 id="消息总线"><a href="#消息总线" class="headerlink" title="消息总线"></a>消息总线</h5><p>EventBus、Otto、RxBus，甚至自己造一个轮子。<img src="http://assets.processon.com/chart_image/5ca469cce4b0874343625ea8.png" alt="EventBus"></p>
+<p>EventBus 的问题也很明显，解耦太彻底，控制不当，事件满天飞。一个 Event 通常会导致多处 state 的变化，这种变化只能反映在UI上，而没有一个统一的地方可以看到这些 state 的变化，导致 debug 异常困难。</p>
+<h5 id="SOA-思想"><a href="#SOA-思想" class="headerlink" title="SOA 思想"></a>SOA 思想<img src="http://assets.processon.com/chart_image/5ca46d75e4b031d0225bfc60.png" alt="SOA"></h5><p>这种思想来源于服务端的 SOA设计思路，原理就是将模块间的依赖导致，变为功能的提供与使用。服务提供者可以看作是一个中间件（代理），代理了所有组件能提供的服务（方法），然后组件需要调用某个服务，只需要获取到服务提供者，然后调用服务提供者提供的方法就行了。</p>
+<h5 id="Redux"><a href="#Redux" class="headerlink" title="Redux"></a>Redux</h5><p>该思想来源于前端著名的状态管理库 <a target="_blank" rel="noopener" href="https://www.redux.org.cn/">Redux</a>，<img src="http://assets.processon.com/chart_image/5ca471e0e4b034408dec0606.png" alt="Redux"></p>
+<p>看上去似乎和之前分享的 EventBus 没什么区别，但实际上，Redux 还做了这些事情：</p>
+<ul>
+<li>对状态的集中管理，整个 App 里只有一个挂载了多个 state 的扁平树 AppState</li>
+<li>dispatch action =&gt; AppState changed，可以打印 action、AppState，实现了状态的追踪</li>
+</ul>
+<h4 id="组件间跳转"><a href="#组件间跳转" class="headerlink" title="组件间跳转"></a>组件间跳转</h4><p>这就涉及到近年来移动端最火热的话题之一了，移动端路由设计。</p>
+<h5 id="蛮荒时代-静态路由"><a href="#蛮荒时代-静态路由" class="headerlink" title="蛮荒时代-静态路由"></a>蛮荒时代-静态路由</h5><p>静态路由，简单来说，就是：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">object</span> Router&#123;</span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">navigateToA</span><span class="params">()</span></span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">navigateToB</span><span class="params">()</span></span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">navigateToC</span><span class="params">()</span></span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要开发者手动维护对业务组件的依赖，多人协作时容易起冲突，Router 还必须与业务组件在同一个工程，局限性非常大，也可以说是最惨的时代。</p>
+<h5 id="旧石器时代-apt路由"><a href="#旧石器时代-apt路由" class="headerlink" title="旧石器时代-apt路由"></a>旧石器时代-apt路由</h5><p>这类栗子非常多，网上大部分开源框架也是基于这个方案来实现，核心就是 <a target="_blank" rel="noopener" href="https://joyrun.github.io/2016/07/19/AptHelloWorld/">APT</a>。但是，使用 Apt 也有一些问题，每个 module library 需要手动注册，原因是 Apt 是在 javacompile 任务前插入了一个 task，所以只对自己的 module library 的注解做处理。</p>
+<h5 id="新石器时代-plugin路由"><a href="#新石器时代-plugin路由" class="headerlink" title="新石器时代-plugin路由"></a>新石器时代-plugin路由</h5><p>这个就更厉害了，通过编写 gradle 插件实现路由表的自动加载，大概原理：</p>
+<blockquote>
+<p>在编译时，扫描所有类，将符合条件的类收集起来，并通过修改字节码生成注册代码到指定的管理类中，从而实现编译时自动注册的功能，不用再关心项目中有哪些组件类了。不会增加新的 class，不需要反射，运行时直接调用组件的构造方法。</p>
+</blockquote>
+<h2 id="组件化演进"><a href="#组件化演进" class="headerlink" title="组件化演进"></a>组件化演进</h2><h3 id="业务组件插拔"><a href="#业务组件插拔" class="headerlink" title="业务组件插拔"></a>业务组件插拔</h3><ul>
+<li>TODO</li>
+</ul>
+<h3 id="Git-多仓库管理"><a href="#Git-多仓库管理" class="headerlink" title="Git 多仓库管理"></a>Git 多仓库管理</h3><ul>
+<li>TODO</li>
+</ul>
+<h3 id="业务组件开发流程"><a href="#业务组件开发流程" class="headerlink" title="业务组件开发流程"></a>业务组件开发流程</h3><ul>
+<li>TODO</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://app.zhenzikj.com/blog/300000023/10128.html">Android组件自动注册方案</a></li>
+<li><a target="_blank" rel="noopener" href="https://dmanager.github.io/android/2017/12/30/androud-mo-kuai-hua/">二维火掌柜Android模块化架构实践</a></li>
+<li><a target="_blank" rel="noopener" href="https://joyrun.github.io/2016/07/19/AptHelloWorld/">Android APT （编译时代码生成）最佳实践</a></li>
+<li><a target="_blank" rel="noopener" href="https://xiaozhuanlan.com/topic/7095341862">Android模块化平台设计-讲稿</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.10tiao.com/html/169/201612/2650821633/1.html">Android组件化核心之路由实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8a3eeeaf01e8">Android 组件化 —— 路由设计最佳实践</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/%E7%BB%84%E4%BB%B6%E5%8C%96/" rel="tag"># 组件化</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/12/14/redux%20%E6%98%AF%E4%B8%AA%E5%A4%A7%E7%8C%AA%E8%B9%84%E5%AD%90/" rel="prev" title="redux 是个大猪蹄子">
+      <i class="fa fa-chevron-left"></i> redux 是个大猪蹄子
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/04/04/Android%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90%E5%AE%9E%E8%B7%B5%C2%B7%E5%89%8D%E7%AF%87/" rel="next" title="Android持续集成实践·前篇">
+      Android持续集成实践·前篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BB%84%E4%BB%B6%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">为什么需要组件化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E5%8C%96%E4%B9%8B%E5%89%8D%E7%9A%84%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">组件化之前的项目结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.1.</span> <span class="nav-text">存在的问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E7%BB%84%E4%BB%B6%E9%80%9A%E4%BF%A1"><span class="nav-number">1.2.</span> <span class="nav-text">业务组件通信</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B7%A8%E7%BB%84%E4%BB%B6%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">跨组件方法调用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A2%AB%E8%B0%83%E7%94%A8%E7%9A%84%E4%B8%9A%E5%8A%A1%E7%BB%84%E4%BB%B6%E4%B8%8B%E6%B2%89"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">被调用的业务组件下沉</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8E%9F%E7%94%9F%E6%8F%90%E4%BE%9B%E7%9A%84%E6%96%B9%E6%A1%88"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">原生提供的方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%80%BB%E7%BA%BF"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">消息总线</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SOA-%E6%80%9D%E6%83%B3"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">SOA 思想</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Redux"><span class="nav-number">1.2.1.5.</span> <span class="nav-text">Redux</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E9%97%B4%E8%B7%B3%E8%BD%AC"><span class="nav-number">1.2.2.</span> <span class="nav-text">组件间跳转</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%9B%AE%E8%8D%92%E6%97%B6%E4%BB%A3-%E9%9D%99%E6%80%81%E8%B7%AF%E7%94%B1"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">蛮荒时代-静态路由</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%A7%E7%9F%B3%E5%99%A8%E6%97%B6%E4%BB%A3-apt%E8%B7%AF%E7%94%B1"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">旧石器时代-apt路由</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%96%B0%E7%9F%B3%E5%99%A8%E6%97%B6%E4%BB%A3-plugin%E8%B7%AF%E7%94%B1"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">新石器时代-plugin路由</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E5%8C%96%E6%BC%94%E8%BF%9B"><span class="nav-number">2.</span> <span class="nav-text">组件化演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E7%BB%84%E4%BB%B6%E6%8F%92%E6%8B%94"><span class="nav-number">2.1.</span> <span class="nav-text">业务组件插拔</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Git-%E5%A4%9A%E4%BB%93%E5%BA%93%E7%AE%A1%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">Git 多仓库管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E7%BB%84%E4%BB%B6%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">业务组件开发流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

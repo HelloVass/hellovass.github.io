@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言面试中经常会被问到这样一个问题或者它的类似问题。  你如何用程序的方式检测导致UI卡顿的问题，并且定位？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写给面试的·StackTrace衍生篇">
+<meta property="og:url" content="http://yoursite.com/2020/03/09/Interview%C2%B7StackTrace%E8%A1%8D%E7%94%9F%E7%AF%87/index.html">
+<meta property="og:site_name" content="HelloVass&#39; blog site">
+<meta property="og:description" content="前言面试中经常会被问到这样一个问题或者它的类似问题。  你如何用程序的方式检测导致UI卡顿的问题，并且定位？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/StackTraceElement%E4%BD%BF%E7%94%A8.png">
+<meta property="article:published_time" content="2020-03-09T04:50:59.000Z">
+<meta property="article:modified_time" content="2022-11-11T14:23:10.278Z">
+<meta property="article:author" content="HelloVass">
+<meta property="article:tag" content="监测工具">
+<meta property="article:tag" content="StackTrace">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/StackTraceElement%E4%BD%BF%E7%94%A8.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/03/09/Interview%C2%B7StackTrace%E8%A1%8D%E7%94%9F%E7%AF%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>写给面试的·StackTrace衍生篇 | HelloVass' blog site</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HelloVass' blog site</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section">首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section">分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section">关于</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section">归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section">标签</a>
+
+  </li>
+        <li class="menu-item menu-item-reviewme">
+
+    <a href="/reviewme/" rel="section">简历</a>
+
+  </li>
+        <li class="menu-item menu-item-laoren">
+
+    <a href="/laoren/" rel="section">捞人</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/09/Interview%C2%B7StackTrace%E8%A1%8D%E7%94%9F%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+      <meta itemprop="name" content="HelloVass">
+      <meta itemprop="description" content="简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HelloVass' blog site">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          写给面试的·StackTrace衍生篇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-09 12:50:59" itemprop="dateCreated datePublished" datetime="2020-03-09T12:50:59+08:00">2020-03-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-11 22:23:10" itemprop="dateModified" datetime="2022-11-11T22:23:10+08:00">2022-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>面试中经常会被问到这样一个问题或者它的类似问题。</p>
+<blockquote>
+<p>你如何用<strong>程序的方式检测</strong>导致<strong>UI卡顿</strong>的问题，并且<strong>定位</strong>？</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h1><p>我个人觉得这其实是一个还不错的综合体，考察点也还算多，也可以衍生出一些题目。</p>
+<p>先来拆解一下关键词，<strong>程序的方式检测</strong>、<strong>UI卡顿</strong>、<strong>定位</strong>：</p>
+<ul>
+<li>程序的方式检测：不是通过图形工具、不是通过交互来检测，而是通过编写工具类在应用运行时来检测</li>
+<li>UI卡顿：UI线程做了一些耗时的操作</li>
+<li>定位：通过日志打印出耗时超过阈值的方法</li>
+</ul>
+<h1 id="技术补完"><a href="#技术补完" class="headerlink" title="技术补完"></a>技术补完</h1><h2 id="StackTrace-amp-StackTraceElement"><a href="#StackTrace-amp-StackTraceElement" class="headerlink" title="StackTrace&amp;StackTraceElement"></a>StackTrace&amp;StackTraceElement</h2><p>先来<code>堆栈追踪</code>部分的知识点，因为这块 api 用的多，但了解少。</p>
+<h3 id="StackTrace"><a href="#StackTrace" class="headerlink" title="StackTrace"></a>StackTrace</h3><p>StackTrace（堆栈跟踪），用栈的形式保存方法的调用信息。</p>
+<p>这个其实我们一点也不陌生，在处理异常的时候，经常会这么写一句：<code>e.printStackTrace()</code>，即打印调用异常的堆栈信息，方便我们在异常发生的时候能定位到具体的问题。</p>
+<h3 id="StackTraceElement"><a href="#StackTraceElement" class="headerlink" title="StackTraceElement"></a>StackTraceElement</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * An element in a stack trace, as returned by &#123;<span class="doctag">@link</span></span></span><br><span class="line"><span class="comment"> * Throwable#getStackTrace()&#125;.  Each element represents a single stack frame.</span></span><br><span class="line"><span class="comment"> * All stack frames except for the one at the top of the stack represent</span></span><br><span class="line"><span class="comment"> * a method invocation.  The frame at the top of the stack represents the</span></span><br><span class="line"><span class="comment"> * execution point at which the stack trace was generated.  Typically,</span></span><br><span class="line"><span class="comment"> * this is the point at which the throwable corresponding to the stack trace</span></span><br><span class="line"><span class="comment"> * was created.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span>  1.4</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Josh Bloch</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">StackTraceElement</span> <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>获取<code>StackTraceElement</code>的方法有2种，返回值为<code>StackTraceElement[]</code>。</p>
+<ul>
+<li>Thread#getStackTrace()，常见代码<code>Thread.currentThread().getStackTrace()</code></li>
+<li>Throwable#getStackTrace()</li>
+</ul>
+<p><code>StackTraceElement[]</code>包含了<code>StackTrace</code>的内容，遍历它可以得到方法见的调用过程，即可以得到当前方法以及其调用者的方法名、调用行数等信息。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// main 函数入口</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    funA()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法A</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">funA</span><span class="params">()</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;---&gt;&gt;&gt; enter funA&quot;</span>)</span><br><span class="line">    funB()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法B</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">funB</span><span class="params">()</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;---&gt;&gt;&gt; enter funB&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> elements = Thread.currentThread().stackTrace</span><br><span class="line"></span><br><span class="line">    elements.forEachIndexed &#123; index, e -&gt;</span><br><span class="line">        <span class="keyword">val</span> className = e.className</span><br><span class="line">        <span class="keyword">val</span> funcName = e.methodName</span><br><span class="line">        <span class="keyword">val</span> fileName = e.fileName</span><br><span class="line">        <span class="keyword">val</span> lineNum = e.lineNumber</span><br><span class="line">        println(</span><br><span class="line">            <span class="string">&quot;---&gt;&gt;&gt; StackTraceElement index=&gt;<span class="variable">$index</span>,&quot;</span> +</span><br><span class="line">                    <span class="string">&quot; fileName=&gt;<span class="variable">$fileName</span>, &quot;</span> +</span><br><span class="line">                    <span class="string">&quot;className=&gt;<span class="variable">$className</span>, &quot;</span> +</span><br><span class="line">                    <span class="string">&quot;funcName=&gt;<span class="variable">$funcName</span>, &quot;</span> +</span><br><span class="line">                    <span class="string">&quot;lineNum=&gt;<span class="variable">$lineNum</span>&quot;</span></span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出，如图：</p>
+<p><img src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/StackTraceElement%E4%BD%BF%E7%94%A8.png" alt="StackTraceElement使用"></p>
+<h2 id="Looper"><a href="#Looper" class="headerlink" title="Looper"></a>Looper</h2><p>主线程里有个<code>Looper</code>，在<code>loop</code>方法中会不断取出<code>Message</code>，调用其绑定的 Handler 在主线程执行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">loop()&#123;</span><br><span class="line">    <span class="keyword">final</span> Looper me = myLooper();</span><br><span class="line">    <span class="keyword">final</span> MessageQueue queue = me.mQueue;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 省略 N行</span></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// might block</span></span><br><span class="line">        Message msg = queue.next(); </span><br><span class="line"></span><br><span class="line">        <span class="comment">// This must be in a local variable, in case a UI event sets the logger</span></span><br><span class="line">        <span class="keyword">final</span> Printer logging = me.mLogging;</span><br><span class="line">        <span class="keyword">if</span> (logging != <span class="keyword">null</span>) &#123;</span><br><span class="line">            logging.println(<span class="string">&quot;&gt;&gt;&gt;&gt;&gt; Dispatching to &quot;</span> + msg.target + <span class="string">&quot; &quot;</span> +</span><br><span class="line">                msg.callback + <span class="string">&quot;: &quot;</span> + msg.what);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 看这里</span></span><br><span class="line">        msg.target.dispatchMessage(msg);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (logging != <span class="keyword">null</span>) &#123;</span><br><span class="line">            logging.println(<span class="string">&quot;&lt;&lt;&lt;&lt;&lt; Finished to &quot;</span> + msg.target + <span class="string">&quot; &quot;</span> + msg.callback);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 省略 N行</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键点，我们只要有办法检测：<code>msg.target.dispatchMessage(msg)</code>的执行时间，判断执行时间是否大于我们设置的某个阈值就可以判断UI线程是否有耗时操作了。此代码执行前后，如果设置了<code>logging</code>，会分别打印出:<code>&gt;&gt;&gt;&gt;&gt; Dispatching to</code>和 <code>&lt;&lt;&lt;&lt;&lt; Finished to </code> 这样的日志。</p>
+<h1 id="实操"><a href="#实操" class="headerlink" title="实操"></a>实操</h1><h2 id="BlockCanary"><a href="#BlockCanary" class="headerlink" title="BlockCanary"></a>BlockCanary</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">val</span> START = <span class="string">&quot;&gt;&gt;&gt;&gt;&gt; Dispatching&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">val</span> END = <span class="string">&quot;&lt;&lt;&lt;&lt;&lt; Finished&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlockCanary</span> <span class="keyword">private</span> <span class="keyword">constructor</span></span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">start</span><span class="params">()</span></span> &#123;</span><br><span class="line">            Looper.getMainLooper()</span><br><span class="line">                .setMessageLogging &#123; str: String -&gt;</span><br><span class="line">                    <span class="keyword">when</span> (str) &#123;</span><br><span class="line">                        START -&gt;</span><br><span class="line">                            LoggerMonitor.INSTANCE.start()</span><br><span class="line">                        END -&gt;</span><br><span class="line">                            LoggerMonitor.INSTANCE.stop()</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="LoggerMonitor"><a href="#LoggerMonitor" class="headerlink" title="LoggerMonitor"></a>LoggerMonitor</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">val</span> THRESHOLD = <span class="number">1</span> * <span class="number">1000L</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoggerMonitor</span> <span class="keyword">private</span> <span class="keyword">constructor</span></span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> loggerThread: HandlerThread = HandlerThread(<span class="string">&quot;logger&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> ioHandler: Handler</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> runnable = Runnable &#123;</span><br><span class="line">        <span class="keyword">val</span> log = buildString &#123;</span><br><span class="line">            <span class="keyword">val</span> stackTrace = Looper.getMainLooper().thread.stackTrace</span><br><span class="line">            stackTrace.forEach &#123; e: StackTraceElement -&gt;</span><br><span class="line">                append(<span class="string">&quot;<span class="variable">$e</span>\n&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Log.e(<span class="string">&quot;TAG&quot;</span>, log)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> isMonitor: <span class="built_in">Boolean</span></span><br><span class="line">        <span class="keyword">get</span>() = ioHandler.hasCallbacks(runnable)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span> &#123;</span><br><span class="line">        loggerThread.start()</span><br><span class="line">        ioHandler = Handler(loggerThread.looper)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> INSTANCE <span class="keyword">by</span> lazy &#123; LoggerMonitor() &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">start</span><span class="params">()</span></span> &#123;</span><br><span class="line">        ioHandler.postDelayed(runnable, THRESHOLD)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">stop</span><span class="params">()</span></span> &#123;</span><br><span class="line">        ioHandler.removeCallbacks(runnable)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设我们的阈值设置为 1000ms，当<code>str</code>匹配到<code>&gt;&gt;&gt; Dispatching</code>时，调用<code>LoggerMonitor.INSTANCE.start()</code>，在 1000ms后执行一个任务，打印出UI线程的堆栈信息（这次在子线程中执行）。正常情况，我们的<code>msg.target.dispatchMessage(msg)</code>执行耗时小于 1000ms，所以<code>str</code>匹配到<code>&lt;&lt;&lt;&lt;&lt; Finished</code>，就会调用<code>LoggerMonitor.INSTANCE.remove()</code>移除任务。</p>
+<p>这里还用到了 HandlerThread，也利用了 Looper，只不过这个 Looper 在子线程中。</p>
+<h2 id="测试环节"><a href="#测试环节" class="headerlink" title="测试环节"></a>测试环节</h2><h3 id="Application-onCreate"><a href="#Application-onCreate" class="headerlink" title="Application#onCreate"></a>Application#onCreate</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoApplication</span> : <span class="type">Application</span></span>() &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate()</span><br><span class="line">        BlockCanary.start()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="耗时模拟"><a href="#耗时模拟" class="headerlink" title="耗时模拟"></a>耗时模拟</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">btn_test.setOnClickListener &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               Thread.sleep(<span class="number">2000L</span>)</span><br><span class="line">           &#125; <span class="keyword">catch</span> (e: Throwable) &#123;</span><br><span class="line">               e.printStackTrace()</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+
+<p>点击按钮，打印出 log：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2020</span>-<span class="number">03</span>-<span class="number">10</span> <span class="number">01</span>:<span class="number">40</span>:<span class="number">10.509</span> <span class="number">4740</span>-<span class="number">4765</span>/info.hellovass.build_example E/TAG: java.lang.Thread.sleep(Native Method)</span><br><span class="line">    java.lang.Thread.sleep(Thread.java:<span class="number">373</span>)</span><br><span class="line">    java.lang.Thread.sleep(Thread.java:<span class="number">314</span>)</span><br><span class="line">    info.hellovass.build_example.MainActivity$onCreate$<span class="number">1.</span>onClick(MainActivity.kt:<span class="number">15</span>)</span><br><span class="line">    android.view.View.performClick(View.java:<span class="number">6597</span>)</span><br><span class="line">    android.view.View.performClickInternal(View.java:<span class="number">6574</span>)</span><br><span class="line">    android.view.View.access$<span class="number">3100</span>(View.java:<span class="number">778</span>)</span><br><span class="line">    android.view.View$PerformClick.run(View.java:<span class="number">25885</span>)</span><br><span class="line">    android.os.Handler.handleCallback(Handler.java:<span class="number">873</span>)</span><br><span class="line">    android.os.Handler.dispatchMessage(Handler.java:<span class="number">99</span>)</span><br><span class="line">    android.os.Looper.loop(Looper.java:<span class="number">193</span>)</span><br><span class="line">    android.app.ActivityThread.main(ActivityThread.java:<span class="number">6669</span>)</span><br><span class="line">    java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">    com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:<span class="number">493</span>)</span><br><span class="line">    com.android.internal.os.ZygoteInit.main(ZygoteInit.java:<span class="number">858</span>)</span><br></pre></td></tr></table></figure>
+
+<p>会打印出耗时相关的代码信息，然后可以通过日志定位到耗时的方法。</p>
+<h1 id="Choreographer"><a href="#Choreographer" class="headerlink" title="Choreographer???"></a>Choreographer???</h1><blockquote>
+<p>2020-03-10 01:40:11.516 4740-4740/info.hellovass.build_example I/Choreographer: Skipped 119 frames!  The application may be doing too much work on its main thread.</p>
+</blockquote>
+<p>这个日志似乎怎么感觉那么熟悉呢？其实日常开发中，如果我们操作不当（UI线程里执行耗时的操作）就能看到。而这个<code>Choreographer</code>，好像和啥 <code>Android</code>、<code>16ms绘制一帧</code>等关键词有着说不清的关系。</p>
+<p>没错，正是在下。</p>
+<p>Android 系统每隔 16ms 发出 VSYNC 信号，触发对 UI 的渲染。Android SDK 包含了一个相关类，以及相应的回调。理论上来说，两次回调的时间周期应该在 16ms以内，超过了，我们则认为是一次造成卡顿的耗时操作，于是：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlockCanary2</span> <span class="keyword">private</span> <span class="keyword">constructor</span></span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">start</span><span class="params">()</span></span> &#123;</span><br><span class="line">            Choreographer.getInstance()</span><br><span class="line">                .postFrameCallback(<span class="keyword">object</span> : Choreographer.FrameCallback &#123;</span><br><span class="line">                    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">doFrame</span><span class="params">(frameTimeNanos: <span class="type">Long</span>)</span></span> &#123;</span><br><span class="line">                        <span class="keyword">if</span> (LoggerMonitor.INSTANCE.isMonitor)&#123;</span><br><span class="line">                            LoggerMonitor.INSTANCE.stop()</span><br><span class="line">                        &#125;</span><br><span class="line">                        LoggerMonitor.INSTANCE.start()</span><br><span class="line">                        Choreographer.getInstance()</span><br><span class="line">                            .postFrameCallback(<span class="keyword">this</span>)</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一次的时候开始检测，如果超过阈值则输出相关堆栈信息；否则移除。</p>
+<h1 id="衍生"><a href="#衍生" class="headerlink" title="衍生"></a>衍生</h1><p>这就完了嘛？兄dei，想多了，如果生产环境的性能检测工具这么写，那真的就是面向离职编程了2333。</p>
+<p>实际要考虑的问题简直不要太多！</p>
+<ul>
+<li>Handler#hasCallbacks 方法仅支持 Android Q 及以上</li>
+<li>阈值为1000ms，第一个方法耗时980ms，第二个方法耗时20ms，这时候打印的堆栈是20ms的方法的堆栈</li>
+<li>阈值还是为1000ms，第一个方法耗时500ms，第二个方法耗时500ms，这时候只打印了第二个方法的堆栈</li>
+<li>怎么把这些堆栈信息同步到远端</li>
+<li>…</li>
+</ul>
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>突然想起好久之前看到过<a target="_blank" rel="noopener" href="https://github.com/markzhai">@markzhai</a>发布过一个检测UI卡顿的<a target="_blank" rel="noopener" href="https://github.com/markzhai/AndroidPerformanceMonitor">工具</a>，但当时年轻不懂其中的奥秘，连随手star都忘了。</p>
+<p>这次一定!</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lmj623565791/article/details/58626355">Android UI性能优化 检测应用中的UI卡顿</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lfdfhl/article/details/39499569">StackTrace简述以及StackTraceElement使用实例</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012874222/article/details/79400154">卡顿监测之真正轻量级的卡顿监测工具BlockDetectUtil（仅一个类）</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%9B%91%E6%B5%8B%E5%B7%A5%E5%85%B7/" rel="tag"># 监测工具</a>
+              <a href="/tags/StackTrace/" rel="tag"># StackTrace</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/08/Interview%C2%B7Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AF%87/" rel="prev" title="写给面试的·Activity生命周期篇">
+      <i class="fa fa-chevron-left"></i> 写给面试的·Activity生命周期篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/10/leetcode%C2%B7reverse-linked-list/" rel="next" title="reverse-linked-list#206">
+      reverse-linked-list#206 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%9D%E8%80%83"><span class="nav-number">2.</span> <span class="nav-text">思考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E8%A1%A5%E5%AE%8C"><span class="nav-number">3.</span> <span class="nav-text">技术补完</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#StackTrace-amp-StackTraceElement"><span class="nav-number">3.1.</span> <span class="nav-text">StackTrace&amp;StackTraceElement</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#StackTrace"><span class="nav-number">3.1.1.</span> <span class="nav-text">StackTrace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StackTraceElement"><span class="nav-number">3.1.2.</span> <span class="nav-text">StackTraceElement</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Looper"><span class="nav-number">3.2.</span> <span class="nav-text">Looper</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E6%93%8D"><span class="nav-number">4.</span> <span class="nav-text">实操</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BlockCanary"><span class="nav-number">4.1.</span> <span class="nav-text">BlockCanary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LoggerMonitor"><span class="nav-number">4.2.</span> <span class="nav-text">LoggerMonitor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%8E%AF%E8%8A%82"><span class="nav-number">4.3.</span> <span class="nav-text">测试环节</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Application-onCreate"><span class="nav-number">4.3.1.</span> <span class="nav-text">Application#onCreate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%80%97%E6%97%B6%E6%A8%A1%E6%8B%9F"><span class="nav-number">4.3.2.</span> <span class="nav-text">耗时模拟</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Choreographer"><span class="nav-number">5.</span> <span class="nav-text">Choreographer???</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%8D%E7%94%9F"><span class="nav-number">6.</span> <span class="nav-text">衍生</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">7.</span> <span class="nav-text">写在最后</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HelloVass"
+      src="https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/avatar_hellovass.jpeg">
+  <p class="site-author-name" itemprop="name">HelloVass</p>
+  <div class="site-description" itemprop="description">简书「week.io」专题编辑，反装逼联盟首领，将著有「老油条，你除了装逼还能干些什么」、「年轻人，工作之后你应该思考些什么」、「夜深了，我的灯还亮着」等文章。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">68</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HelloVass" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HelloVass" rel="noopener" target="_blank"><i class="fa fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hellova33@gmail.com" title="E-Mail → mailto:hellova33@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      以下完成的交♂易，来源于「轲爷的奇妙冒险」，排名不分先后，如果你也想进行交♂易或者认识这些大佬，请联系我:)
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://juejin.im/user/5e2659e15188254d95242d4b/posts" title="https:&#x2F;&#x2F;juejin.im&#x2F;user&#x2F;5e2659e15188254d95242d4b&#x2F;posts" rel="noopener" target="_blank">ClericYi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://rychou.github.io/" title="https:&#x2F;&#x2F;rychou.github.io&#x2F;" rel="noopener" target="_blank">锐哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://tecotaku.cn/" title="https:&#x2F;&#x2F;tecotaku.cn&#x2F;" rel="noopener" target="_blank">gay哈</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://fogdong.github.io/" title="https:&#x2F;&#x2F;fogdong.github.io&#x2F;" rel="noopener" target="_blank">雾雾</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://mikumiku.com.cn/" title="http:&#x2F;&#x2F;mikumiku.com.cn" rel="noopener" target="_blank">xana</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.happyjava.cn/" title="http:&#x2F;&#x2F;blog.happyjava.cn&#x2F;" rel="noopener" target="_blank">阿乐</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.licrafter.com/" title="http:&#x2F;&#x2F;blog.licrafter.com&#x2F;" rel="noopener" target="_blank">祥哥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.showonne.com/" title="http:&#x2F;&#x2F;www.showonne.com&#x2F;" rel="noopener" target="_blank">showonne</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://cheri.love/" title="http:&#x2F;&#x2F;cheri.love&#x2F;" rel="noopener" target="_blank">枫祺玥</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.harbon.link/" title="http:&#x2F;&#x2F;blog.harbon.link" rel="noopener" target="_blank">川神</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.jianshu.com/u/6b372d09b617" title="http:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;6b372d09b617" rel="noopener" target="_blank">右右</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://geminiwen.com/" title="https:&#x2F;&#x2F;geminiwen.com&#x2F;" rel="noopener" target="_blank">阿温</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HelloVass</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
