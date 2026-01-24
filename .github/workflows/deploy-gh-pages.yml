@@ -1,0 +1,55 @@
+# GitHub Pages 自动部署工作流
+name: Deploy to GitHub Pages
+
+# 触发条件
+on:
+  push:
+    branches:
+      - main  # 当推送到 main 分支时触发
+  workflow_dispatch:  # 允许手动触发工作流
+
+# 权限配置
+permissions:
+  contents: write  # 需要写权限来推送到 gh-pages 分支
+
+# 并发控制 - 确保同一时间只有一个部署在进行
+concurrency:
+  group: "pages"                  # 并发组名称
+  cancel-in-progress: false       # 不取消正在进行的部署
+
+jobs:
+  # 构建并部署任务
+  build-and-deploy:
+    runs-on: ubuntu-latest  # 使用标准的 Ubuntu 运行器（Gradle 缓存和并行构建已优化性能）
+
+    steps:
+      # 步骤 1: 检出代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 步骤 2: 设置 Java 环境
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'  # 使用 Temurin (Eclipse Adoptium) JDK
+          java-version: '17'       # Java 17
+
+      # 步骤 3: 设置 Gradle 构建工具
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      # 步骤 4: 构建生产版本
+      - name: Build production
+        run: |
+          chmod +x ./gradlew  # 给 gradlew 添加执行权限
+          # 执行 Wasm 浏览器分发任务，生成生产环境的所有文件
+          ./gradlew :composeApp:wasmJsBrowserDistribution --info
+
+      # 步骤 5: 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 自动提供的 token
+          publish_dir: ./composeApp/build/dist/wasmJs/productionExecutable  # 要部署的目录
+          publish_branch: gh-pages  # 部署到 gh-pages 分支
+          force_orphan: true  # 创建孤立分支，不保留历史记录（减小仓库体积）
