@@ -1,0 +1,45 @@
+{
+  "meetingDate": "2020-01-01T00:00:00Z",
+  "marriageDate": "2023-10-01T00:00:00Z",
+  "couple": {
+    "me": {
+      "name": "轲爷",
+      "avatar": "drawable/me.jpg"
+    },
+    "wife": {
+      "name": "老婆",
+      "avatar": "drawable/wife.jpg"
+    }
+  },
+  "banner": {
+    "title": "我们的故事",
+    "backgroundImage": null
+  },
+  "timeline": {
+    "title": "从我们相识",
+    "subtitle": "每一刻都值得珍藏"
+  },
+  "features": [
+    {
+      "id": "love_channel",
+      "title": "恋爱频道",
+      "description": "记录我们的点滴",
+      "icon": "favorite",
+      "color": "#E91E63"
+    },
+    {
+      "id": "message_board",
+      "title": "留言板",
+      "description": "留下你的祝福",
+      "icon": "chat",
+      "color": "#9C27B0"
+    },
+    {
+      "id": "about_us",
+      "title": "关于我们",
+      "description": "了解我们的故事",
+      "icon": "info",
+      "color": "#3F51B5"
+    }
+  ]
+}
