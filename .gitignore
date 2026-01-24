@@ -1,8 +1,38 @@
-.DS_Store
-Thumbs.db
-db.json
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Kotlin
+*.class
 *.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+.kotlin/
+kotlin-js-store/
+
+# IDE
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/shelf
+.idea/dictionaries
+.idea/libraries
+.DS_Store
+
+# Node
 node_modules/
-public/
-.deploy*/
-/.idea
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+composeApp/build/
+build/wasm/
