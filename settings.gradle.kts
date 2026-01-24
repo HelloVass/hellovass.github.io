@@ -1,3 +1,5 @@
+rootProject.name = "hellovass"
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
