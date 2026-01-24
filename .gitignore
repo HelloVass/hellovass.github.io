@@ -1,38 +1,22 @@
-# Gradle
-.gradle/
-build/
-gradle-app.setting
-!gradle-wrapper.jar
-.gradletasknamecache
-
-# Kotlin
-*.class
-*.log
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-.kotlin/
-kotlin-js-store/
-
-# IDE
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/usage.statistics.xml
-.idea/shelf
-.idea/dictionaries
-.idea/libraries
+*.iml
+.kotlin
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
 .DS_Store
-
-# Node
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Build outputs
-composeApp/build/
-build/wasm/
+# Claude Code 本地配置
+.claude/settings.local.json
