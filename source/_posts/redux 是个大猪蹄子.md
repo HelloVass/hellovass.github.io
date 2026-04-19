@@ -1,9 +1,9 @@
 ---
 title: redux 是个大猪蹄子
 date: 2018-12-14 22:33:11
-categories: 技术
+categories: 生活
 tags:
-    - 前端
+    - 随笔
 ---
 
 ## 2018.10.10，和 redux 的相遇
