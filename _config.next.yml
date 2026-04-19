@@ -135,7 +135,7 @@ comments:
 
 utterances:
   enable: true
-  repo: HelloVass/blog
+  repo: HelloVass/hellovass.github.io
   issue_term: pathname
   theme: github-light
 
