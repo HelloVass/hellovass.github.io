@@ -51,6 +51,9 @@ toc:
   expand_all: false
   max_depth: 6
 
+# SEO - show subtitle in index page title
+index_with_subtitle: true
+
 # Footer
 footer:
   since: 2026
