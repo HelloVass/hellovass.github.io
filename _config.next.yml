@@ -1,0 +1,72 @@
+# NexT Theme Configuration
+# See: https://theme-next.js.org/docs/getting-started/configuration
+
+# Scheme
+scheme: Mist
+
+# Dark Mode
+darkmode: true
+
+# Menu
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  tags: /tags/ || fa fa-tags
+  categories: /categories/ || fa fa-th
+
+menu_settings:
+  icons: true
+  badges: true
+
+# Sidebar
+sidebar:
+  position: left
+  display: post
+
+avatar:
+  url: /images/avatar.png
+  rounded: true
+  rotated: false
+
+social:
+  GitHub: https://github.com/hellovass || fab fa-github
+
+social_icons:
+  enable: true
+  icons_only: false
+
+# Footer
+footer:
+  since: 2026
+  powered: true
+
+# Post
+post_meta:
+  item_text: true
+  created_at: true
+  updated_at:
+    enable: true
+    another_day: true
+  categories: true
+
+# Code block
+codeblock:
+  copy_button:
+    enable: true
+    style: mac
+  fold:
+    enable: true
+    height: 500
+
+# Back to top
+back2top:
+  enable: true
+  sidebar: false
+  scrollpercent: true
+
+# Reading progress bar
+reading_progress:
+  enable: true
+  position: top
+  color: "#37c6c0"
+  height: 3px
