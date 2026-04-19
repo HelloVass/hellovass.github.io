@@ -100,7 +100,7 @@ fun funB() {
 
 输出，如图：
 
-![StackTraceElement使用](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/StackTraceElement%E4%BD%BF%E7%94%A8.png)
+![StackTraceElement使用](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/StackTrace衍生篇/StackTraceElement使用.png)
 
 ## Looper
 

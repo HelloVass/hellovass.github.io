@@ -57,7 +57,7 @@ pipeline {
 
 Jenkins Pipline 很贴心，给我们提供了 `shared library` 这个功能，具体路径：Manage Jenkins -> Configure System -> Global Pipeline Libraries，如图：
 
-![共享函数库配置](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/Jenkins%E5%85%B1%E4%BA%AB%E5%87%BD%E6%95%B0%E5%BA%93.png)
+![共享函数库配置](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Pipeline扩展/Jenkins共享函数库.png)
 
 ## 配置项说明
 
@@ -72,7 +72,7 @@ Jenkins Pipline 很贴心，给我们提供了 `shared library` 这个功能，�
 
 创建一个共享库项目，目录结构如下：
 
-![共享库目录结构](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%85%B1%E4%BA%AB%E5%87%BD%E6%95%B0%E5%BA%93%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png)
+![共享库目录结构](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Pipeline扩展/共享函数库目录结构.png)
 
 将代码推送到远程仓库中，然后将 ssh 地址填入到`Modern SCM`中。
 
@@ -124,7 +124,7 @@ Jenkins 支持同时添加多个共享库，所以 @Library 注解还允许同�
 
 共享库的目录结构复习：
 
-![共享函数库目录结构](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%85%B1%E4%BA%AB%E5%87%BD%E6%95%B0%E5%BA%93%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png)
+![共享函数库目录结构](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Pipeline扩展/共享函数库目录结构.png)
 
 放在 vars 目录下的是可以供 pipeline 直接调用的全局变量（真的很想吐槽“变量”这个名称）。变量的文件名即为在 pipline 中调用的函数名，文件名为驼峰式。
 
@@ -436,11 +436,11 @@ public Process exec(String[] cmdarray, String[] envp, File dir) throws IOExcepti
 
 #### 写法一
 
-![写法一的cmdArray](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%86%99%E6%B3%95%E4%B8%80%E7%9A%84cmdArray.png)
+![写法一的cmdArray](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Pipeline扩展/写法一的cmdArray.png)
 
 #### 写法二
 
-![写法二的cmdArray](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%86%99%E6%B3%95%E4%BA%8C%E7%9A%84cmdArray.png)
+![写法二的cmdArray](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Pipeline扩展/写法二的cmdArray.png)
 
 果然，写法一的 cmdArray 符合预期，一看就能理解；写法二的参数被错误分割了，这也就是为毛写法二执行耗时过长而且失败的原因了。那为什么参数会被错误分割呢？
 

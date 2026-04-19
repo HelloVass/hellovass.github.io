@@ -64,7 +64,7 @@ var app4 = new Vue({
 
 [DiffUtil](https://developer.android.com/reference/android/support/v7/util/DiffUtil)，为我们提供了计算**差异值**的能力：
 
-![DiffUtil 计算原理](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/DiffUtil%20%E8%AE%A1%E7%AE%97%E5%8E%9F%E7%90%86.png)
+![DiffUtil 计算原理](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/DiffUtil与LiveData/DiffUtil计算原理.png)
 
 简单理解，`DiffUtil` 根据 `cur&next` ，就能计算出**差异值**，也就是 `DiffUtil.DiffResult`。
 
@@ -82,7 +82,7 @@ var app4 = new Vue({
 
 如图：
 
-![Android 里的 MVVM](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/Android%20%E9%87%8C%E7%9A%84%20MVVM.png)
+![Android 里的 MVVM](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/DiffUtil与LiveData/Android里的MVVM.png)
 
 ### 开始实现了
 

@@ -59,9 +59,9 @@ Jenkins 1.x 只能通过手动操作（即各种UI选项设置）来描述 pipli
 
 新建一个 pipline 项目，然后选择 pipline script from SCM，像这样：
 
-![新建一个 pipline 项目](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%96%B0%E5%BB%BApipline%E9%A1%B9%E7%9B%AE.png)
+![新建一个 pipline 项目](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/新建pipeline项目.png)
 
-![pipeline script from SCM](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E6%88%AA%E5%B1%8F2020-02-03%E4%B8%8B%E5%8D%882.03.42.png)
+![pipeline script from SCM](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/构建截图.png)
 
 这里我们选择将 pipline 脚本纳入到版本管理，理由如下：
 - 可以多人维护、code review
@@ -87,13 +87,13 @@ Jenkins 1.x 只能通过手动操作（即各种UI选项设置）来描述 pipli
 
 当然，还可以根据项目的需求增加更多的参数，这些参数的特点，灵活、多变，需要经常被修改。
 
-![job UI界面](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/job%20UI%E7%95%8C%E9%9D%A2.png)
+![job UI界面](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/job界面.png)
 
 ### 项目特定配置
 
 这个配置文件可以理解为与项目绑定的配置，一般是一些不经常修改的参数，比如项目的名字，如图：
 
-![项目特定配置文件](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E9%A1%B9%E7%9B%AE%E7%89%B9%E5%AE%9A%E9%85%8D%E7%BD%AE.png)
+![项目特定配置文件](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/项目特定配置.png)
 
 ### 脚本仓库
 
@@ -181,7 +181,7 @@ PS：因为我们需要从项目里读取特定的配置文件，并且加载文
 
 这里点击参数化构建->开始构建，然后等个几分钟，就可以看到构建的结果。
 
-![jenkins 构建结果](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/pipeline%20%E6%9E%84%E5%BB%BA%E7%BB%93%E6%9E%9C.png)
+![jenkins 构建结果](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/pipeline构建结果.png)
 
 - 可以清楚地看到每个构建阶段的耗时，方便后期优化
 - 构建出错时，使用 stage view 可以快速定位出出错的阶段
@@ -194,9 +194,9 @@ PS：因为我们需要从项目里读取特定的配置文件，并且加载文
 
 其实 Jenkins 为了减低编写 pipeline 的门槛，提供了一个 pipline 代码片段的生成器，通过界面操作就能生成相应代码。
 
-![pipline语法入口](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/pipline%E8%AF%AD%E6%B3%95%E5%85%A5%E5%8F%A3.png)
+![pipline语法入口](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/pipeline语法入口.png)
 
-![pipline代码生成器](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/pipline%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%99%A8.png)
+![pipline代码生成器](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Android持续集成后篇/pipeline代码生成器.png)
 
 ### Jenkinsfile 编写和语法校验
 

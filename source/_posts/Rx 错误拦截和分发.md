@@ -26,7 +26,7 @@ tags:
 
 ## 整理下逻辑
 
-![错误拦截以及分发](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/Rx%20%E9%94%99%E8%AF%AF%E6%8B%A6%E6%88%AA%E5%92%8C%E5%88%86%E5%8F%91.png)
+![错误拦截以及分发](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Rx错误拦截和分发/错误拦截和分发.png)
 
 
 
@@ -272,7 +272,7 @@ public interface RxErrorDispatcher {
 
 
 
-![为什么会这样子呢](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%BF%99%E6%A0%B7%E5%AD%90%E5%91%A2.jpg)
+![为什么会这样子呢](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Rx错误拦截和分发/为什么会这样子呢.jpg)
 
 
 

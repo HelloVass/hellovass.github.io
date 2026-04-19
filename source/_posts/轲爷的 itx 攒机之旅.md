@@ -14,8 +14,8 @@ tags:
 
 ## 第一台 itx 主机
 
-![第一台 itx 主机](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E7%AC%AC%E4%B8%80%E5%8F%B0%20itx%20%E4%B8%BB%E6%9C%BA.jpg)
-![第一台 itx 主机配置](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E7%AC%AC%E4%B8%80%E5%8F%B0%20itx%20%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE.jpg)
+![第一台 itx 主机](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/itx攒机之旅/第一台itx主机.jpg)
+![第一台 itx 主机配置](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/itx攒机之旅/第一台itx主机配置.jpg)
 
 当时这台主机是某宝买的，第一眼看到这个造型就觉得是它了，但现在回过头来看里面的配置清单，就觉得，当时硬件小白的自己真傻，居然做了整机烈士，被奸商狠宰了一波鸭。而且，最重要的是，这根本没有 itx 的灵魂!
 

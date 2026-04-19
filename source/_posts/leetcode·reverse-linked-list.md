@@ -78,7 +78,7 @@ class Solution206 {
 但当前节点无法访问**过去的节点**（前驱）
 因此需要保存前驱节点
 
-![反转单链表](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/%E5%8F%8D%E8%BD%AC%E5%8D%95%E9%93%BE%E8%A1%A8.gif)
+![反转单链表](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/反转链表/反转单链表.gif)
 
 申请两个指针：
 

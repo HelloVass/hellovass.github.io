@@ -28,7 +28,7 @@ tags:
 - **头像**
 - **昵称**。
 
-![UserInfo 组件](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/UserInfo%20%E7%BB%84%E4%BB%B6.png)
+![UserInfo 组件](https://hellovass-blog-1257365569.cos.ap-shanghai.myqcloud.com/blog/Vue响应式原理/UserInfo组件.png)
 
 
 
