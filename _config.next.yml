@@ -10,6 +10,7 @@ darkmode: true
 # Custom file path - enable variable and style overrides
 custom_file_path:
   head: source/_data/head.njk
+  postBodyEnd: source/_data/post-body-end.njk
   variable: source/_data/variables.styl
   style: source/_data/styles.styl
 
@@ -127,6 +128,18 @@ local_search:
   top_n_per_article: 3
   unescape: false
   preload: false
+
+# Reward (打赏) - 使用自定义实现，关闭 NexT 内置
+reward_settings:
+  enable: false
+
+# Creative Commons (版权许可)
+creative_commons:
+  license: by-nc-sa
+  size: small
+  sidebar: false
+  post: true
+  language: deed.zh
 
 # Comments - Utterances
 comments:
