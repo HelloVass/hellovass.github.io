@@ -4,12 +4,12 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-HelloVass 的个人技术博客，基于 **Hexo 8 + NexT 8.27 (Mist)** 主题，托管在 GitHub Pages（hellovass.github.io）。内容以中文为主，涵盖 Android 开发、算法、面试、生活随笔等。
+HelloVass 的个人博客，基于 **Hexo 8 + NexT 8.27 (Mist)** 主题，托管在 GitHub Pages（hellovass.github.io）。内容以中文为主，涵盖 Android 开发、算法、面试、生活随笔等。
 
 ## Commands
 
-- `npx hexo server` — 本地预览（http://localhost:4000）
-- `npx hexo generate` / `npm run build` — 生成静态文件到 `public/`
+- `npx hexo server` — 本地预览（http://localhost:4000），支持热更新
+- `npx hexo generate` — 生成静态文件到 `public/`，用于验证构建
 - `npx hexo clean` — 清理缓存和已生成文件
 - `npx hexo new post "title"` — 创建新文章
 - `npx hexo new draft "title"` — 创建草稿
@@ -17,11 +17,13 @@ HelloVass 的个人技术博客，基于 **Hexo 8 + NexT 8.27 (Mist)** 主题，
 ## Architecture
 
 ```
-source/_posts/          # 博客文章（57 篇，Markdown）
+source/_posts/          # 博客文章（Markdown）
 source/_data/           # 自定义样式覆盖
-  variables.styl        # 配色、字体变量
+  variables.styl        # 配色、字体变量（Kotlin 紫 #7F52FF）
   styles.styl           # 自定义 CSS
   head.njk              # 自定义 head 注入（favicon）
+  post-body-end.njk     # 文章末尾注入（打赏组件）
+source/donate/          # 自定义打赏页面（iframe 嵌入，3D 翻转动画）
 source/about/           # 关于页面
 source/tags/            # 标签页
 source/categories/      # 分类页
@@ -67,19 +69,54 @@ tags:
 
 ## Theme Features (NexT Mist)
 
-- 自定义配色和中文友好字体（source/_data/variables.styl）
+- 主题色：Kotlin 紫 #7F52FF
 - 代码块：复制按钮（Mac 风格）、折叠、语言标签
 - 阅读进度条、返回顶部、mediumzoom 图片灯箱
 - Utterances 评论系统（基于 GitHub Issues，repo: HelloVass/hellovass.github.io）
 - 本地搜索
+- Creative Commons BY-NC-SA 版权声明
+- 自定义打赏组件（支付宝/微信，3D 翻转动画）
 
 ## Deployment
 
 推送到 `main` 分支自动触发 GitHub Actions，构建并部署到 GitHub Pages。
 
 - 站点地址：https://hellovass.github.io
+- 仓库：HelloVass/hellovass.github.io
 - 部署方式：`actions/deploy-pages`（官方方案，无需额外 token）
 - Node.js 22 (LTS)
+
+## Writing Rules
+
+写博客时必须遵守以下规则。详细的写作风格见 blog-writer Skill。
+
+### 绝对不编造
+
+**不要编造用户没有提供的经历、场景、细节。** 用户没说的事情，不要自己脑补。不知道那天天气如何，就不要写"晴"。不知道用户在产房里还是外面，就不要写"站在产房外面"。
+
+如果文章需要场景细节而用户没提供，**问用户**，不要编。
+
+### 立场一致性
+
+HelloVass 已有的博客观点必须保持一致。涉及他写过的主题，先确认之前的立场。如果不确定，问。不要默认写一个"安全的"中间立场。
+
+### 语言
+
+- **中文为主**，技术术语保留英文
+- 中英混用是自然的
+- 非技术博客不要强行往技术人身份上靠
+- 自称偶尔用"轲爷"，带自嘲感
+- 老婆叫"大猪"，猫叫"redux"
+
+### 禁忌清单
+
+- 不用"首先……其次……最后……"这种教科书结构
+- 不用"众所周知"、"不言而喻"、"让我们拭目以待"这类套话
+- 不写"本文将介绍..."这种开头
+- 不写"希望对大家有帮助"这种结尾
+- 不自称"笔者"，用"我"
+- 不写冷冰冰的正式文字
+- 不过度使用 emoji
 
 ## Notes
 
