@@ -7,9 +7,16 @@ scheme: Mist
 # Dark Mode
 darkmode: true
 
+# Custom file path - enable variable and style overrides
+custom_file_path:
+  head: source/_data/head.njk
+  variable: source/_data/variables.styl
+  style: source/_data/styles.styl
+
 # Menu
 menu:
   home: / || fa fa-home
+  about: /about/ || fa fa-user
   archives: /archives/ || fa fa-archive
   tags: /tags/ || fa fa-tags
   categories: /categories/ || fa fa-th
@@ -24,7 +31,7 @@ sidebar:
   display: post
 
 avatar:
-  url: /images/avatar.png
+  url: https://github.com/hellovass.png
   rounded: true
   rotated: false
 
@@ -34,6 +41,14 @@ social:
 social_icons:
   enable: true
   icons_only: false
+
+# Table of Contents
+toc:
+  enable: true
+  number: true
+  wrap: false
+  expand_all: false
+  max_depth: 6
 
 # Footer
 footer:
@@ -57,6 +72,7 @@ codeblock:
   fold:
     enable: true
     height: 500
+  language: true
 
 # Back to top
 back2top:
@@ -70,3 +86,62 @@ reading_progress:
   position: top
   color: "#37c6c0"
   height: 3px
+
+# Medium Zoom for image lightbox
+mediumzoom: true
+
+# Font
+font:
+  enable: true
+  host: https://fonts.googleapis.com
+  global:
+    external: true
+    family: Noto Sans SC
+    size:
+  title:
+    external: true
+    family:
+    size:
+  headings:
+    external: true
+    family:
+    size:
+  posts:
+    external: true
+    family:
+  codes:
+    external: true
+    family: Fira Code
+
+# Preconnect for fonts CDN
+preconnect: true
+
+# Word counter
+symbols_count_time:
+  separated_meta: true
+  item_text_total: false
+
+# Local search
+local_search:
+  enable: true
+  top_n_per_article: 3
+  unescape: false
+  preload: false
+
+# Comments - Utterances
+comments:
+  active: utterances
+  lazyload: true
+
+utterances:
+  enable: true
+  repo: HelloVass/blog
+  issue_term: pathname
+  theme: github-light
+
+# MathJax
+math:
+  every_page: false
+  mathjax:
+    enable: true
+    tags: ams

@@ -5,8 +5,13 @@
 # Site
 title: "HelloVass's Blog"
 subtitle: ''
-description: ''
+description: HelloVass 的个人技术博客，分享 Android 开发、数据结构、编程实践与生活感悟
 keywords:
+  - Android
+  - Kotlin
+  - 数据结构
+  - 编程
+  - 技术博客
 author: HelloVass
 language: zh-CN
 timezone: Asia/Shanghai
@@ -67,6 +72,9 @@ index_generator:
 # Category & Tag
 default_category: uncategorized
 category_map:
+  数据结构: data-structure
+  Android 小事: android
+  NO GAME NO LIFE: life
 tag_map:
 
 # Metadata elements
@@ -102,3 +110,23 @@ theme: next
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+
+# RSS Feed
+feed:
+  type: atom
+  path: atom.xml
+  limit: 100
+  content: true
+  content_limit: 140
+  content_limit_delim: ' '
+  order_by: -date
+  autodiscovery: true
+
+# Sitemap
+sitemap:
+  path: sitemap.xml
+  rel: true
+
+# PlantUML
+plantuml:
+  render: PlantUMLServer
