@@ -1,43 +1,66 @@
+# 自动构建并部署 Hexo 博客到 GitHub Pages
+# 触发条件：push 到 main 分支，或手动触发
+
 name: Pages
 
 on:
   push:
     branches:
-      - main
+      - main # 推送到 main 分支时自动触发
+  workflow_dispatch: # 支持在 GitHub Actions 页面手动触发
+
+# 同一时间只允许一个部署任务运行，后触发的会取消前一个
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
+  # 第一步：构建静态文件
   build:
     runs-on: ubuntu-latest
     steps:
+      # 拉取代码
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
-      - name: Use Node.js 20
+
+      # 安装 Node.js 22 (LTS)
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: "npm"
+
+      # 缓存 node_modules，基于 package-lock.json 的 hash 来判断是否失效
       - name: Cache NPM dependencies
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.OS }}-npm-cache
+          key: ${{ runner.OS }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.OS }}-npm-cache
+            ${{ runner.OS }}-npm-
+
+      # 安装依赖
       - name: Install Dependencies
         run: npm install
+
+      # 执行 hexo generate，生成静态文件到 public/
       - name: Build
         run: npm run build
+
+      # 将 public/ 目录打包为 Pages artifact
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
+  # 第二步：部署到 GitHub Pages
   deploy:
-    needs: build
+    needs: build # 依赖 build 任务完成
     permissions:
-      pages: write
-      id-token: write
+      pages: write # 写入 GitHub Pages 的权限
+      id-token: write # OIDC token 用于身份验证
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
