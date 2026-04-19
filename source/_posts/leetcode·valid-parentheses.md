@@ -1,6 +1,7 @@
 ---
 title: valid-parentheses#20
 date: 2020-03-19 23:34:23
+categories: 算法
 tags:
     - 算法
 ---

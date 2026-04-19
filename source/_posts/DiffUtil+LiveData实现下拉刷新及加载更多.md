@@ -1,6 +1,7 @@
 ---
 title: DiffUtil、LiveData 的应用
 date: 2018-09-10 20:10:19
+categories: 技术
 tags:
     - Android
 ---

@@ -1,6 +1,7 @@
 ---
 title: 写给面试的·Activity生命周期篇
 date: 2020-03-08 16:19:34
+categories: 面试
 tags:
     - 面试
 ---

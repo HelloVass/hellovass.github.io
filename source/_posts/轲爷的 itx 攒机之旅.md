@@ -1,6 +1,7 @@
 ---
 title: 轲爷的 itx 攒机之旅
 date: 2020-06-05 16:39:42
+categories: 折腾
 tags:
     - DIY
 ---

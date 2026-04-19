@@ -1,6 +1,7 @@
 ---
 title: Android单元测试实践和探索
 date: 2019-04-19 13:52:48
+categories: 技术
 tags:
     - Android
 ---

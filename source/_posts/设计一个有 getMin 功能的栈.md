@@ -1,7 +1,7 @@
 ---
 title: 设计一个有 getMin 功能的栈
 date: 2016-11-14 14:51:30
-categories: 数据结构
+categories: 算法
 tags:
     - 算法
 ---

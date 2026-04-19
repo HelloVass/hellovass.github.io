@@ -1,6 +1,7 @@
 ---
 title: Java多线程和线程同步
 date: 2020-02-10 20:11:27
+categories: 技术
 tags:
     - Java
 ---

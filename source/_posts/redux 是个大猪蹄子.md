@@ -1,6 +1,7 @@
 ---
 title: redux 是个大猪蹄子
 date: 2018-12-14 22:33:11
+categories: 技术
 tags:
     - 前端
 ---

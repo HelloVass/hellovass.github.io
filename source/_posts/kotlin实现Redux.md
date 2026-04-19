@@ -1,6 +1,7 @@
 ---
 title: kotlin 实现 redux
 date: 2020-03-30 17:19:34
+categories: 技术
 tags:
     - Kotlin
 ---

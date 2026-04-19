@@ -1,7 +1,7 @@
 ---
 title: Android 的消息机制
 date: 2016-10-05 21:12:52
-categories: Android 小事
+categories: 技术
 tags:
     - Android
 ---

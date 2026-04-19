@@ -1,6 +1,7 @@
 ---
 title: Rx 错误拦截和分发
 date: 2017-04-15 21:57:46
+categories: 技术
 tags:
     - Android
 ---

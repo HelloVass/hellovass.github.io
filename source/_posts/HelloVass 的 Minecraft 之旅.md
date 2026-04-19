@@ -1,7 +1,7 @@
 ---
 title: HelloVass 的 Minecraft 之旅
 date: 2016-11-9 00:07:23
-categories: NO GAME NO LIFE
+categories: 折腾
 tags:
     - 随笔
 ---

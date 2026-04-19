@@ -1,6 +1,7 @@
 ---
 title: 魔改 TypeAdapterFactory
 date: 2017-04-09 20:18:13
+categories: 技术
 tags:
     - Android
 ---

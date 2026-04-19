@@ -1,6 +1,7 @@
 ---
 title: 优雅地烘焙 DBService
 date: 2017-04-21 18:30:05
+categories: 技术
 tags:
     - Android
 

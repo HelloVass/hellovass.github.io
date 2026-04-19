@@ -1,6 +1,7 @@
 ---
 title: Android组件化实践与探索
 date: 2019-04-02 11:56:53
+categories: 技术
 tags:
     - Android
 ---

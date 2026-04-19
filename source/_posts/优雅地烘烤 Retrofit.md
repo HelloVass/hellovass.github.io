@@ -1,6 +1,7 @@
 ---
 title: 优雅地烘焙 Retrofit
 date: 2017-04-07 14:19:18
+categories: 技术
 tags:
     - Android
 ---

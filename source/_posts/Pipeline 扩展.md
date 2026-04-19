@@ -1,6 +1,7 @@
 ---
 title: Pipeline 扩展
 date: 2020-03-04 14:27:02
+categories: 技术
 tags:
     - CI/CD
 ---

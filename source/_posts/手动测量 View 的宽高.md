@@ -1,7 +1,7 @@
 ---
 title: 手动测量 View 的宽高
 date: 2016-10-04 16:24:57
-categories: Android 小事
+categories: 技术
 tags:
     - Android
 ---

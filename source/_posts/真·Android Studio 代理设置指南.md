@@ -1,6 +1,7 @@
 ---
 title: 真·Android Studio 代理设置指南
 date: 2017-04-04 13:13:47
+categories: 技术
 tags:
     - Android
 ---

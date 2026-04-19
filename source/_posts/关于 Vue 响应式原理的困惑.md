@@ -1,6 +1,7 @@
 ---
 title: 关于 Vue 响应式原理的困惑
 date: 2018-07-29 14:11:41
+categories: 技术
 tags:
     - 前端
 ---

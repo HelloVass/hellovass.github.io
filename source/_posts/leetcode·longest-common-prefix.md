@@ -1,6 +1,7 @@
 ---
 title: longest-common-prefix#14
 date: 2020-03-19 22:42:47
+categories: 算法
 tags:
     - 算法
 ---

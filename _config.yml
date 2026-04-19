@@ -72,9 +72,11 @@ index_generator:
 # Category & Tag
 default_category: uncategorized
 category_map:
-  数据结构: data-structure
-  Android 小事: android
-  NO GAME NO LIFE: life
+  技术: tech
+  算法: algorithm
+  面试: interview
+  生活: life
+  折腾: tinkering
 tag_map:
 
 # Metadata elements

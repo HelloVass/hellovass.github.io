@@ -1,6 +1,7 @@
 ---
 title: 初识 Go 语言
 date: 2017-04-04 21:46:14
+categories: 技术
 tags:
     - 随笔
 ---

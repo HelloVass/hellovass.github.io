@@ -1,6 +1,7 @@
 ---
 title: reverse-linked-list#206
 date: 2020-03-10 23:00:46
+categories: 算法
 tags:
     - 算法
 ---

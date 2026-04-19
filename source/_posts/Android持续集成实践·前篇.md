@@ -1,6 +1,7 @@
 ---
 title: Android持续集成实践·前篇
 date: 2019-04-04 11:56:36
+categories: 技术
 tags:
     - CI/CD
 ---

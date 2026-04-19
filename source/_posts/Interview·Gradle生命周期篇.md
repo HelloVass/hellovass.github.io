@@ -1,6 +1,7 @@
 ---
 title: 写给面试的·Gradle 生命周期篇
 date: 2020-04-03 16:28:11
+categories: 面试
 tags:
     - 面试
 ---

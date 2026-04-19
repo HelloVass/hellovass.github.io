@@ -1,6 +1,7 @@
 ---
 title: reverse-integer#7
 date: 2020-03-15 23:16:41
+categories: 算法
 tags:
     - 算法
 ---
