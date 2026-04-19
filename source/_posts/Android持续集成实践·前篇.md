@@ -23,7 +23,7 @@ tags:
 
 <!-- more -->
 
-## Jenkins构建
+## Jenkins 构建
 
 使用的比较多的是自由风格的软件项目（Jenkins 构建的一种方式，会结合 SCM 和构建系统来构建项目，甚至可以构建软件以外的系统）。目前的构建就是基于**自由风格的软件项目**来做的，简单，基本满足需求，但也有不方便的地方，之后会说到。
 
@@ -144,5 +144,5 @@ CI_BUILD=false
 
 左侧出现了 `Build with Parameters`，右侧：![右侧面板](http://assets.processon.com/chart_image/5cb03a21e4b0b62750f80baf.png)
 
-### Pipline构建
+### Pipeline 构建
 - TODO

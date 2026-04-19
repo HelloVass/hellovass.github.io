@@ -77,7 +77,7 @@ Jenkins Pipline 很贴心，给我们提供了 `shared library` 这个功能，�
 
 ## 使用共享库
 
-```grovvy
+```groovy
 @Library('global-shared-library)
 pipeline{
     agent any
@@ -141,7 +141,7 @@ def call(String value = "hello world")
 
 定义一个 mvm.grrovy。
 
-```grovvy
+```groovy
 def call(Closure<String> closure){
     configFileProvider([configFile(fileId: 'maven-global-settings', variable: 'MAVEN_GLOBAL_ENV')]){
         closure("${MAVEN_GLOBAL_ENV}")
@@ -151,7 +151,7 @@ def call(Closure<String> closure){
 
 通过 call 函数里的内容就可以将 configFileProvider 啰嗦的写法封装到 mvm 变量。于是，我们可以这么用：
 
-```grovvy
+```groovy
 @Library('global-shared-library@master') _
 pipeline {
     agent any

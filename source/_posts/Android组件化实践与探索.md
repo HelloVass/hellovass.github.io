@@ -34,7 +34,9 @@ tags:
 
 #### 跨组件方法调用
 
-##### 被调用的业务组件下沉![组件下沉](http://assets.processon.com/chart_image/5ca46752e4b08743436256b6.png)
+##### 被调用的业务组件下沉
+
+![组件下沉](http://assets.processon.com/chart_image/5ca46752e4b08743436256b6.png)
 
 这种方案最暴力直接，但是问题也最大。只要其他业务组件需要调用，就移动到不合理的层级，容易导致下层越来越臃肿，也就失去了组件化的灵魂。
 
@@ -46,17 +48,23 @@ tags:
 
 ##### 消息总线
 
-EventBus、Otto、RxBus，甚至自己造一个轮子。![EventBus](http://assets.processon.com/chart_image/5ca469cce4b0874343625ea8.png)
+EventBus、Otto、RxBus，甚至自己造一个轮子。
+
+![EventBus](http://assets.processon.com/chart_image/5ca469cce4b0874343625ea8.png)
 
 EventBus 的问题也很明显，解耦太彻底，控制不当，事件满天飞。一个 Event 通常会导致多处 state 的变化，这种变化只能反映在UI上，而没有一个统一的地方可以看到这些 state 的变化，导致 debug 异常困难。
 
-##### SOA 思想![SOA](http://assets.processon.com/chart_image/5ca46d75e4b031d0225bfc60.png)
+##### SOA 思想
+
+![SOA](http://assets.processon.com/chart_image/5ca46d75e4b031d0225bfc60.png)
 
 这种思想来源于服务端的 SOA设计思路，原理就是将模块间的依赖导致，变为功能的提供与使用。服务提供者可以看作是一个中间件（代理），代理了所有组件能提供的服务（方法），然后组件需要调用某个服务，只需要获取到服务提供者，然后调用服务提供者提供的方法就行了。
 
 ##### Redux
 
-该思想来源于前端著名的状态管理库 [Redux](<https://www.redux.org.cn/>)，![Redux](http://assets.processon.com/chart_image/5ca471e0e4b034408dec0606.png)
+该思想来源于前端著名的状态管理库 [Redux](<https://www.redux.org.cn/>)，
+
+![Redux](http://assets.processon.com/chart_image/5ca471e0e4b034408dec0606.png)
 
 看上去似乎和之前分享的 EventBus 没什么区别，但实际上，Redux 还做了这些事情：
 
