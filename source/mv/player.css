@@ -1,0 +1,64 @@
+:root { --paper: #f3ebdc; --ink: #4a3c36; --soft: #8a7868; --line: #dccbb0; --accent: #d98a7a; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.7 -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif; }
+.page { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; }
+.head { text-align: center; margin-bottom: 18px; }
+.head h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: .08em; }
+
+.page { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; }
+/* The picture is always exactly 16:9 and never taller than the screen: its width is the smaller of the column and what
+   the screen's height allows. The canvas carries the ratio itself, so no browser can stretch it. */
+.stage { position: relative; width: min(100%, calc((100vh - 32px) * 16 / 9)); width: min(100%, calc((100dvh - 32px) * 16 / 9)); margin: 0 auto; background: var(--paper); outline: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(90, 70, 50, .14); user-select: none; -webkit-user-select: none; }
+.stage canvas#out { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; cursor: pointer; }
+.p5Canvas { display: none !important; }            /* the engine's own WebGL canvas; #out shows the finished frame */
+/* Full screen is always the picture lying sideways across the whole screen. .stage covers the screen (natively where the
+   browser can, otherwise as a fixed layer), and .screen — the picture with its controls — is centred in it. If the phone is
+   upright and the browser will not turn the screen, .screen is turned a quarter instead, so the film still plays landscape. */
+.screen { position: relative; }
+.stage.is-full { position: fixed; inset: 0; z-index: 9999; width: 100vw; height: 100vh; height: 100dvh; margin: 0; border-radius: 0; outline: 0; box-shadow: none; background: #1d1719; }
+.stage.is-full .screen { position: absolute; left: 50%; top: 50%; width: min(100vw, 177.78vh); width: min(100vw, 177.78dvh); transform: translate(-50%, -50%); }
+@media (orientation: portrait) {
+  .stage.is-full .screen { width: min(100vh, 177.78vw); width: min(100dvh, 177.78vw); transform: translate(-50%, -50%) rotate(90deg); }
+}
+html.mv-full, html.mv-full body { overflow: hidden; }
+
+.loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--soft); font-size: 15px; letter-spacing: .1em; background: var(--paper); }
+.loading b { font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink); }
+.loading.is-error { color: #a4483c; padding: 0 24px; text-align: center; letter-spacing: 0; }
+.stage:not(.is-loading) .loading { display: none; }
+
+.big { position: absolute; left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border: 0; border-radius: 50%; background: rgba(255, 251, 243, .92); box-shadow: 0 6px 22px rgba(90, 70, 50, .25); cursor: pointer; display: grid; place-items: center; transition: transform .15s; }
+.big:hover { transform: scale(1.06); }
+.big svg { width: 54px; height: 54px; fill: var(--accent); }
+.big[hidden] { display: none; }
+
+.bar { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 10px; padding: 26px 12px 8px; background: linear-gradient(to top, rgba(40, 30, 28, .62), rgba(40, 30, 28, 0)); color: #fff8ea; transition: opacity .25s; }
+.stage.is-loading .bar, .stage.is-idle .bar { opacity: 0; pointer-events: none; }
+.stage.is-idle canvas#out { cursor: none; }
+.bar button { flex: none; width: 36px; height: 36px; padding: 6px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
+.bar button:hover { background: rgba(255, 248, 234, .16); }
+.bar button:focus-visible, .big:focus-visible, .bar input:focus-visible { outline: 2px solid #fff8ea; outline-offset: 2px; }
+.bar svg { width: 24px; height: 24px; fill: #fff8ea; stroke: #fff8ea; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+#mute svg, #full svg { fill: none; } #mute svg path { fill: none; }
+.i-pause, .i-off { display: none; }
+.is-playing .i-play { display: none; } .is-playing .i-pause { display: block; }
+.is-muted .i-on { display: none; } .is-muted .i-off { display: block; }
+.time { flex: none; font-size: 13px; font-variant-numeric: tabular-nums; min-width: 88px; }
+.bar input[type=range] { flex: 1; min-width: 0; height: 20px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+
+.tip { position: absolute; left: 12px; top: 10px; margin: 0; padding: 4px 10px; border-radius: 999px; background: rgba(40, 30, 28, .6); color: #fff8ea; font-size: 12px; }
+.note { margin: 16px 0 0; text-align: center; color: var(--soft); font-size: 13px; }
+.back { text-align: center; margin: 10px 0 0; font-size: 14px; }
+.back a { color: var(--accent); text-decoration: none; } .back a:hover { text-decoration: underline; }
+
+.turn { display: none; }
+/* A phone held upright: the picture runs edge to edge, and a line says it gets bigger sideways. */
+@media (max-width: 560px) and (orientation: portrait) { .page { padding-left: 0; padding-right: 0; } .stage { border-radius: 0; outline: 0; } .note, .back { padding: 0 14px; } .turn { display: block; } .keys { display: none; } }
+/* A phone held sideways: nothing but the picture, filling the screen's height; the text is below, a scroll away. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .page { padding: 0 0 24px; justify-content: flex-start; } .head { display: none; }
+  .stage { width: min(100vw, calc(100vh * 16 / 9)); width: min(100vw, calc(100dvh * 16 / 9)); border-radius: 0; outline: 0; box-shadow: none; }
+  .keys { display: none; }
+}
+@media (max-width: 560px) { .page { padding-top: 18px; padding-bottom: 36px; } .head h1 { font-size: 21px; } .time { min-width: 0; font-size: 12px; } .bar { gap: 6px; padding: 22px 6px 4px; } .big { width: 68px; height: 68px; margin: -34px 0 0 -34px; } .big svg { width: 40px; height: 40px; } }
+@media (prefers-reduced-motion: reduce) { .big, .bar { transition: none; } }

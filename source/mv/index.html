@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>把回忆拼好给你 · 实时版</title>
+<meta name="description" content="一支在浏览器里现场画出来的 MV。">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="player.css">
+</head>
+<body>
+<main class="page">
+  <header class="head">
+    <h1>把回忆拼好给你</h1>
+  </header>
+
+  <div id="stage" class="stage is-loading">
+   <div class="screen">
+    <canvas id="out" width="1920" height="1080" aria-label="把回忆拼好给你 MV"></canvas>
+    <div id="loading" class="loading" role="status"><span>正在翻开相册…</span><b id="pct">0%</b></div>
+    <button id="big" class="big" type="button" aria-label="播放" hidden>
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M24 17 L49 32 L24 47 Z"/></svg>
+    </button>
+    <div class="bar" id="bar">
+      <button id="play" type="button" aria-label="播放">
+        <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 L19 12 L8 19 Z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5 H10.5 V19 H7 Z M13.5 5 H17 V19 H13.5 Z"/></svg>
+      </button>
+      <span id="time" class="time">0:00 / 3:03</span>
+      <input id="seek" type="range" min="0" max="183.5" step="0.05" value="0" aria-label="进度">
+      <button id="mute" type="button" aria-label="静音">
+        <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 H8 L13 5.5 V18.5 L8 14.5 H4 Z M16 8.5 Q18.5 12 16 15.5" /></svg>
+        <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 H8 L13 5.5 V18.5 L8 14.5 H4 Z M16 9.5 L20.5 14.5 M20.5 9.5 L16 14.5" /></svg>
+      </button>
+      <button id="full" type="button" aria-label="全屏">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9.5 V5 H9.5 M14.5 5 H19 V9.5 M19 14.5 V19 H14.5 M9.5 19 H5 V14.5" /></svg>
+      </button>
+    </div>
+    <p id="tip" class="tip" hidden>这台设备画得有点慢，画面可能跟不上音乐。</p>
+   </div>
+  </div>
+
+  <p class="note">这里没有视频文件：每一帧都是你的浏览器现在画出来的，所以电脑上看最顺，手机可能会卡。<span class="turn">把手机横过来，画面会铺满屏幕。</span><span class="keys"><br>空格 播放／暂停 · F 全屏 · ← → 快退／快进</span></p>
+  <p class="back"><a href="/">← 回到博客</a></p>
+</main>
+
+<audio id="song" data-src="song.m4a" preload="auto"></audio>
+
+<!-- Painted with p5.js (LGPL-2.1) and p5.brush (MIT), on the Claude Animation Base kit (MIT). -->
+<script src="vendor/p5.min.js"></script>
+<script src="vendor/p5.brush.js"></script>
+<script src="film/config.js"></script>
+<script src="film/core.js"></script>
+<script src="film/timeline.js"></script>
+<script src="film/sprites.js"></script>
+<script src="film/lib.js"></script>
+<script src="film/scene.js"></script>
+<script src="player.js"></script>
+</body>
+</html>
