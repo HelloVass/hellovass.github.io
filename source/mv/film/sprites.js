@@ -10,6 +10,11 @@ const SPRITES = {
   "w": 323,
   "h": 428
  },
+ "baby_newborn": {
+  "file": "baby_newborn.webp",
+  "w": 477,
+  "h": 518
+ },
  "baby_reach": {
   "file": "baby_reach.webp",
   "w": 554,
@@ -324,6 +329,11 @@ const SPRITES = {
   "file": "portrait2.webp",
   "w": 844,
   "h": 1024
+ },
+ "rotor": {
+  "file": "rotor.webp",
+  "w": 1249,
+  "h": 1238
  },
  "selfie": {
   "file": "selfie.webp",
