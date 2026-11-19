@@ -47,6 +47,8 @@ html.mv-full, html.mv-full body { overflow: hidden; }
 .bar input[type=range] { flex: 1; min-width: 0; height: 20px; margin: 0; accent-color: var(--accent); cursor: pointer; }
 
 .tip { position: absolute; left: 12px; top: 10px; margin: 0; padding: 4px 10px; border-radius: 999px; background: rgba(40, 30, 28, .6); color: #fff8ea; font-size: 12px; }
+.debug { position: absolute; left: 12px; top: 40px; margin: 0; padding: 4px 8px; border-radius: 6px; background: rgba(20, 16, 18, .72); color: #e9ffd9; font: 12px/1.5 ui-monospace, Menlo, monospace; white-space: pre; pointer-events: none; }
+.note a { color: var(--accent); }
 .note { margin: 16px 0 0; text-align: center; color: var(--soft); font-size: 13px; }
 .back { text-align: center; margin: 10px 0 0; font-size: 14px; }
 .back a { color: var(--accent); text-decoration: none; } .back a:hover { text-decoration: underline; }

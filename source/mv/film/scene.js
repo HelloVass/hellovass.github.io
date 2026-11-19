@@ -124,6 +124,14 @@
   ENV.m_propose2 = (t, b0, b1, M) => M.warp([0, .2, .215, .62], swing(t, 7, 2), { free: 'l' });
   ENV.m_sdsunset2 = ENV.m_sdsunset;
 
+  // ---------- baked layers ----------
+  // A watercolour fill (a blot, a soft shadow) is the one costly thing in this film: p5.brush paints it as dozens of
+  // layers, and on a phone's GPU a single big one takes longer than a frame. Every fill here is static, so each is
+  // listed in BAKE below: the web player paints them once while loading and keeps the results as pictures ('bk_' + name
+  // in SPRITES), and the scenes draw those pictures instead. The offline renderer bakes nothing and paints them live.
+  const baked = name => SPRITES['bk_' + name];
+  const paperFill = col => { boilSeed('bake-bg'); P(rectPts(-40, -40, 2000, 1160), { wash: col, ink: null }); };
+
   // ---------- acted scenes (all take the beat they start on) ----------
   S.sanya = (t, b0, b1) => {
     const q = n => b0 + n, b = bt(t);
@@ -137,9 +145,10 @@
     spr('cert', 960, 1040, 880 * popIn(t, b0, 1.2, .9));
     done();
   };
+  const weddingGround = () => { ground('#F7EEDF'); blot(960, 560, 660, 430, '#F5DFA8', 80, 'wed-a'); blot(960, 620, 430, 300, '#FBE3DC', 70, 'wed-b'); };
   S.wedding = (t, b0, b1) => {
-    viewBegin(...kb(t, [[b0, [960, 540, 1]], [b1, [960, 440, 1.22]]])); ground('#F7EEDF');
-    blot(960, 560, 660, 430, '#F5DFA8', 80, 'wed-a'); blot(960, 620, 430, 300, '#FBE3DC', 70, 'wed-b');
+    viewBegin(...kb(t, [[b0, [960, 540, 1]], [b1, [960, 440, 1.22]]]));
+    if (baked('wedding')) backdrop('bk_wedding', 1, .5); else weddingGround();
     spr('wedding', 960, 1052, 950 * popIn(t, b0, 1.4));
     done();
   };
@@ -161,8 +170,8 @@
     done();
   };
   S.home = (t, b0, b1) => {
-    viewBegin(...kb(t, [[b0, [960, 560, 1]], [b1, [960, 640, 1.34]]])); backdrop('bg_home'); WORLD.bg_home(t);
-    shadow(960, 1022, 560, 'sh-sofa', 50);
+    viewBegin(...kb(t, [[b0, [960, 560, 1]], [b1, [960, 640, 1.34]]])); backdrop(baked('home_sofa') ? 'bk_home_sofa' : 'bg_home'); WORLD.bg_home(t);
+    if (!baked('home_sofa')) shadow(960, 1022, 560, 'sh-sofa', 50);
     spr('album_home', 960, 1040, 740);
     done();
   };
@@ -173,8 +182,8 @@
     done();
   };
   S.lift = (t, b0, b1) => {
-    viewBegin(960, 600, 1.16 + .12 * bseg(t, b0, b1)); backdrop('bg_home'); WORLD.bg_home(t);
-    shadow(960, 1016, 290, 'sh-lift', 50);
+    viewBegin(960, 600, 1.16 + .12 * bseg(t, b0, b1)); backdrop(baked('home_lift') ? 'bk_home_lift' : 'bg_home'); WORLD.bg_home(t);
+    if (!baked('home_lift')) shadow(960, 1016, 290, 'sh-lift', 50);
     spr('lift', 960, 1024, 800 * popIn(t, b0, 1.2, .96));
     done();
   };
@@ -193,19 +202,35 @@
   const MEM = [() => mem('m_propose2', { ay: .45 })(B(73), 64, 74), () => mem('m_certdesk', { ay: .4 })(B(100) - .02, 92, 100), () => S.wedding(B(124), 118, 128),
                () => S.cqheart(B(175) - .02, 172, 176), () => mem('m_sdsunset2', { ay: .35, dir: -1 })(B(245), 240, 246), () => mem('m_nanjing_lake', { ay: .7, dir: -1 })(B(272), 264, 274)];
   const TAPE = ['#F2B7C0', '#E9B872', '#F6DDA0', '#9CCBD6', '#A9C8A4', '#E7A58F'];
-  function page() {
+  const NEST = swell => blot(960, 548, 330 + 60 * swell, 250 + 40 * swell, '#FBD9C2', 80 + 60 * swell, 'nest-blot');   // the warm place in the middle
+  function pageLive() {
     boilSeed('page');
     P(rrPts(46, 34, 1828, 1012, 26, 0), { wash: '#F8F0E1', ink: '#D7C5A8', sw: .7 });
     blot(960, 548, 520, 330, '#F9DDCB', 60, 'page-blot');
   }
-  function memCard(t, i, p = SLOT[i]) {
+  // The album page. nest (0..1) adds the warm blot in the middle, growing; baked, that is a cross-fade of three pages.
+  function page(nest) {
+    if (!baked('page')) { pageLive(); if (nest !== undefined) NEST(nest); return; }
+    settle();
+    if (nest === undefined) { image(baked('page').img, 0, 0, W, H); return; }
+    const k = clamp(nest) * 2, i0 = Math.min(1, Math.floor(k)), f = k - i0;
+    image(baked('nest' + i0).img, 0, 0, W, H);
+    if (f > .01) { tint(255, 255 * f); image(baked('nest' + (i0 + 1)).img, 0, 0, W, H); noTint(); }
+  }
+  const CARD_BOX = [-.52, -.335, 1.06, .67];           // what a baked card picture covers, in card widths around its centre
+  function memCardLive(t, i, p) {
     const r = p.r + .004 * Math.sin(t * .7 + i * 2.3);
     card('mem' + i, p.x, p.y, p.w, r, MEM[i]);
     push(); translate(p.x, p.y); rotate(r);
     boilSeed('tape' + i); P(rectPts(-p.w * .1, -p.w * .315, p.w * .2, p.w * .055, 0), { wash: TAPE[i], washOp: 205, ink: null });
     pop();
   }
-  function album(t, n) { page(); for (let i = 0; i < n; i++) memCard(t, i, SLOT[i]); }
+  function memCard(t, i, p = SLOT[i]) {
+    const c = baked('card' + i); if (!c) return memCardLive(t, i, p);
+    settle(); push(); translate(p.x, p.y); rotate(p.r + .004 * Math.sin(t * .7 + i * 2.3));
+    image(c.img, CARD_BOX[0] * p.w, CARD_BOX[1] * p.w, CARD_BOX[2] * p.w, CARD_BOX[3] * p.w); pop();
+  }
+  function album(t, n, nest) { page(nest); for (let i = 0; i < n; i++) memCard(t, i, SLOT[i]); }
   // A print flies from where it was shown (from) into album slot i, landing on beat bLand; n slots are already filled.
   function landing(t, i, bFrom, bLand, n, from = SCREEN) {
     album(t, n);
@@ -281,9 +306,8 @@
   function shotEmpty(t, b0, b1) {
     const z = kb(t, [[b0, 1.02], [b1, 1.5]]), born = ease(bseg(t, b0 + 5, b0 + 8.5)), swell = bseg(t, b1 - 5, b1);
     camBegin(960, 548, z);
-    album(t, 6);
+    album(t, 6, swell);
     const w = HEART.w * .62, h = w * .78;
-    blot(960, 548, 330 + 60 * swell, 250 + 40 * swell, '#FBD9C2', 80 + 60 * swell, 'nest-blot');
     boilSeed('nest'); P(rrPts(960 - w / 2, 548 - h / 2, w, h, 20, 0), { wash: '#FFFAF1', washOp: 140 + 115 * born, ink: '#D2BE9E', sw: .8 });
     settle();
     if (born > 0) { tint(255, 255 * born); const s = SPRITES.baby_newborn, bh = h * .9; image(s.img, 960 - bh * s.w / s.h / 2, 548 - bh / 2 + 8 * (1 - born), bh * s.w / s.h, bh); noTint(); }
@@ -291,11 +315,11 @@
     camEnd();
   }
   // 小九's hand finds a finger: three drawings of the same hand, on a print.
+  const graspGround = () => { boilSeed('gr-bg'); P(rectPts(-40, -40, W + 80, H + 80), { wash: '#FBEADD', ink: null }); blot(960, 540, 760, 460, '#F7CDB7', 80, 'gr-blot'); };
   function shotGrasp(t, b0, b1) {
     const b = bt(t), i = b < b0 + 4 ? 0 : b < b0 + 8 ? 1 : 2, k = i ? .96 + .04 * backOut((t - B(b0 + 4 * i)) / .3) : popIn(t, b0, 1.2, .9);
     camBegin(960, 540, 1 + .05 * bseg(t, b0, b1));
-    boilSeed('gr-bg'); P(rectPts(-40, -40, W + 80, H + 80), { wash: '#FBEADD', ink: null });
-    blot(960, 540, 760, 460, '#F7CDB7', 80, 'gr-blot');
+    if (baked('grasp')) { settle(); image(baked('grasp').img, 0, 0, W, H); } else graspGround();
     card('grasp', 960, 548, 900 * k, -.03, () => { const s = SPRITES['grasp_' + i]; image(s.img, 0, 0, 1920, 1920); }, { ar: 1 });
     camEnd();
     petals(t, 12);
@@ -407,9 +431,27 @@
     if (r >= 1300) { let k = 0; while (k + 1 < PLACES.length && b >= PLACES[k + 1][0]) k++;
       const p0 = PLACES[k][0], p1 = k + 1 < PLACES.length ? PLACES[k + 1][0] : 432; placeTag(t, PLACES[k][1], B(p0) + .3, B(Math.min(p1, p0 + 8)) - .25); }
     aperture(r);
-    if (t < .32) { boilSeed('open'); brushWipe(.5 + t / .64, WIPE); }                                        // opens out of paper
-    const end = 181.7; if (t > end) { boilSeed('close'); brushWipe(Math.min(.4999, (t - end) / 2.6), WIPE); }   // and closes into it
+    // opens out of paper and closes back into it: a plain veil of paper colour (a painted wipe here cost more than
+    // any other frame of the film, at the two moments a stutter shows most)
+    const veil = t < .4 ? 1 - ease(t / .4) : t > 181.7 ? ease((t - 181.7) / 1.5) : 0;
+    if (veil > .003) { settle(); boilSeed('veil'); P(rectPts(-40, -40, 2000, 1160), { wash: PAL.paper, washOp: 255 * veil, ink: null }); }
   }
-  window.FILM = { S, TL, SLOT, B };
+  // What the web player bakes, in this order (a card's inner picture may use an earlier bake). Each entry paints one
+  // whole frame; `card` marks the six album prints, which are painted alone at double size on page-coloured paper and
+  // cut out by the player (CARD_BOX and the rects below, in card widths).
+  const whole = fn => () => { viewBegin(); fn(); viewEnd(); };
+  const BAKE = [
+    ['wedding', whole(weddingGround)],
+    ['home_sofa', whole(() => { backdrop('bg_home'); shadow(960, 1022, 560, 'sh-sofa', 50); })],
+    ['home_lift', whole(() => { backdrop('bg_home'); shadow(960, 1016, 290, 'sh-lift', 50); })],
+    ['grasp', graspGround],
+    ['page', pageLive], ['nest0', () => { pageLive(); NEST(0); }], ['nest1', () => { pageLive(); NEST(.5); }], ['nest2', () => { pageLive(); NEST(1); }],
+    ...[0, 1, 2, 3, 4, 5].map(i => ['card' + i, () => { paperFill('#F8F0E1'); memCardLive(-i * 2.3 / .7, i, { x: 960, y: 540, w: 864, r: 0 }); }, { card: 864 }]),
+  ];
+  const CARD_H = (1 - 2 * CARD_B) * 9 / 16 + 2 * CARD_B;   // a card's height in card widths
+  const CARD_KEEP = [[-.503, -CARD_H / 2 - .003, 1.006, CARD_H + .006], [-.488, -CARD_H / 2 + .016, 1.002, CARD_H + .002], [-.102, -.317, .204, .059]];   // print, its shadow, the tape
+  // Paint bake `name` as the whole frame (the player sets window.LOOP to this, redraws once, and copies the canvas).
+  const bakeFrame = fn => { DIRTY = false; VIEW = null; BOILN = 0; boilSeed('film'); LIVE = false; fn(); settle(); };
+  window.FILM = { S, TL, SLOT, B, BAKE, bakeFrame, CARD_BOX, CARD_KEEP };
   shots([[0, film]]);
 })();

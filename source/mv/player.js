@@ -8,6 +8,12 @@
   const stats = [];                                           // how long the last paints took, in ms
   let ready = false, songReady = false, busy = false, want = null, raf = 0, lastPaint = 0, idleTimer = 0, slow = 0, dragging = false;
 
+  // The other version is one link away: phones start on the light one, computers on the full one.
+  const swap = $('swap');
+  if (window.MV_LITE) { swap.textContent = '想更清晰？换高清版（可能会卡）'; swap.href = '?q=full'; } else { swap.textContent = '卡的话，换轻量版'; swap.href = '?q=lite'; }
+  // ?debug=1 shows what this device is actually doing (for reporting a slow phone)
+  const debug = new URLSearchParams(location.search).get('debug') ? $('debug') : null, paints = [];
+
   window.onSpriteProgress = (n, total) => { $('pct').textContent = Math.round(100 * n / total) + '%'; };
   const fail = msg => { loading.classList.add('is-error'); loading.textContent = msg; };
   window.addEventListener('error', e => { if (!ready) fail('画面没能加载出来，刷新一下试试。（' + (e.message || '未知错误') + '）'); });
@@ -22,10 +28,37 @@
         const tt = Math.max(0, Math.min(LEN - .001, want)); want = null;
         const w0 = performance.now();
         T = tt; await redraw(); composite(tt);
-        const ms = performance.now() - w0; stats.push(ms); if (stats.length > 600) stats.shift();
+        const ms = performance.now() - w0; stats.push(ms); if (stats.length > 600) stats.shift(); paints.push(performance.now());
         if (!audio.paused) { slow = slow * .9 + (ms > 70 ? 1 : 0) * .1; tip.hidden = slow < .6; }
       }
     } finally { busy = false; }
+  }
+
+  // The visible canvas takes the size the film is painted at (1920x1080, or two thirds of it in the light version);
+  // the engine keeps drawing to it in 1920x1080 units.
+  function fitOut() {
+    const out = $('out'), gl = drawingContext.canvas; out.width = gl.width; out.height = gl.height;
+    outX.setTransform(out.width / 1920, 0, 0, out.height / 1080, 0, 0);
+  }
+  // Bake the film's watercolour fills into pictures (see BAKE in scene.js): each is painted once, alone, and copied off
+  // the canvas. The six album prints are cut out of their page-coloured ground so they can lie anywhere.
+  async function bake() {
+    const F = window.FILM, gl = drawingContext.canvas;
+    for (const [name, fn, opt] of F.BAKE) {
+      window.LOOP = () => F.bakeFrame(fn); T = 0; await redraw();
+      const d = gl.width / 1920; let im;
+      if (opt && opt.card) {
+        const w = opt.card, [bx, by, bw, bh] = F.CARD_BOX, x0 = (960 + bx * w) * d, y0 = (540 + by * w) * d;
+        im = createImage(Math.round(bw * w * d), Math.round(bh * w * d));
+        for (const [kx, ky, kw, kh] of F.CARD_KEEP) {
+          const sx = (960 + kx * w) * d, sy = (540 + ky * w) * d, sw = kw * w * d, sh = kh * w * d;
+          im.drawingContext.drawImage(gl, sx, sy, sw, sh, sx - x0, sy - y0, sw, sh);
+        }
+      } else { im = createImage(gl.width, gl.height); im.drawingContext.drawImage(gl, 0, 0); }
+      if (im.setModified) im.setModified(true);
+      SPRITES['bk_' + name] = { img: im, w: im.width, h: im.height };
+    }
+    window.LOOP = null;
   }
 
   // The audio's own clock, read every frame, smoothed between its updates.
@@ -120,8 +153,20 @@
   const wait = setInterval(async () => {
     if (!window.ready || !songReady) return;
     clearInterval(wait);
+    fitOut();
+    // ?brush=1 keeps every mark a real brush stroke (slower; for comparing)
+    try { await bake(); window.MV_FAST = !new URLSearchParams(location.search).get('brush'); } catch (e) { window.LOOP = null; console.warn('bake skipped:', e); }   // without it the film still plays, only slower
     await paint(.6);                                   // the empty album, waiting
     ready = true; stage.classList.remove('is-loading'); big.hidden = false; showTime(0);
-    window.__mv = { paint, audio, stats, fullscreen, get busy() { return busy; }, get full() { return full; } };
+    if (debug) {
+      const g = drawingContext, e = g.getExtension('WEBGL_debug_renderer_info'), gpu = (e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : '?').replace(/^ANGLE \(|\)$/g, '').slice(0, 46);
+      debug.hidden = false;
+      setInterval(() => {
+        const now = performance.now(); while (paints.length && now - paints[0] > 2000) paints.shift();
+        const a = stats.slice(-90).sort((x, y) => x - y), q = p => a.length ? a[Math.min(a.length - 1, Math.floor(a.length * p))].toFixed(0) : '-';
+        debug.textContent = `${window.MV_LITE ? '轻量' : '高清'} ${g.canvas.width}×${g.canvas.height}  屏幕 ${screen.width}×${screen.height}@${devicePixelRatio}\n${(paints.length / 2).toFixed(0)} 帧/秒  每帧 ${q(.5)} / ${q(.95)} / ${q(1)} ms（中位/95%/最慢）\n${gpu}`;
+      }, 500);
+    }
+    window.__mv = { paint, audio, stats, fullscreen, get busy() { return busy; }, get full() { return full; }, scale: window.MV_SCALE || 1, lite: !!window.MV_LITE };
   }, 100);
 })();

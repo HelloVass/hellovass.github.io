@@ -37,24 +37,34 @@
       </button>
     </div>
     <p id="tip" class="tip" hidden>这台设备画得有点慢，画面可能跟不上音乐。</p>
+    <p id="debug" class="debug" hidden></p>
    </div>
   </div>
 
   <p class="note">这里没有视频文件：每一帧都是你的浏览器现在画出来的，所以电脑上看最顺，手机可能会卡。<span class="turn">把手机横过来，画面会铺满屏幕。</span><span class="keys"><br>空格 播放／暂停 · F 全屏 · ← → 快退／快进</span></p>
+  <p class="note"><a id="swap" href="?q=lite">卡的话，换轻量版</a></p>
   <p class="back"><a href="/">← 回到博客</a></p>
 </main>
 
 <audio id="song" data-src="song.m4a" preload="auto"></audio>
 
+<script>
+  // Phones and tablets get the light version: smaller pictures and a 1280x720 canvas. ?q=full or ?q=lite overrides.
+  (function () { var q = new URLSearchParams(location.search).get('q');
+    window.MV_LITE = q === 'lite' || (q !== 'full' && window.matchMedia && matchMedia('(pointer: coarse)').matches);
+    window.MV_SCALE = window.MV_LITE ? 2 / 3 : 1; })();
+</script>
 <!-- Painted with p5.js (LGPL-2.1) and p5.brush (MIT), on the Claude Animation Base kit (MIT). -->
 <script src="vendor/p5.min.js"></script>
 <script src="vendor/p5.brush.js"></script>
 <script src="film/config.js"></script>
 <script src="film/core.js"></script>
 <script src="film/timeline.js"></script>
+<script src="fast.js"></script>
 <script src="film/sprites.js"></script>
 <script src="film/lib.js"></script>
 <script src="film/scene.js"></script>
 <script src="player.js"></script>
+<script>if (/[?&]bench=/.test(location.search)) document.write('<script src="bench.js"><\/script>');</script>
 </body>
 </html>

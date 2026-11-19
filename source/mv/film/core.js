@@ -273,7 +273,7 @@ function defineBrushes() {
 
 // ---------- frame ----------
 async function setup() {
-  createCanvas(W, H, WEBGL); pixelDensity(1); noLoop();
+  const RS = window.MV_SCALE || 1; createCanvas(Math.round(W * RS), Math.round(H * RS), WEBGL); pixelDensity(1); noLoop();
   brush.scaleBrushes(5); defineBrushes();
   paperG = makePaper(); grainC = makeGrain(); glowTex = makeGlowTex(); letG = createGraphics(W, H); letG.pixelDensity(1);
   outC = document.getElementById('out'); outX = outC.getContext('2d');
@@ -283,7 +283,7 @@ async function setup() {
 function draw() {
   if (!window.ready) return;
   LETTERS = []; CAM = LAST_CAM = null;
-  push(); translate(-W / 2, -H / 2);
+  push(); scale(window.MV_SCALE || 1); translate(-W / 2, -H / 2);
   BOILN = Math.floor(T * BOIL); CLAWD_N = 0; boilSeed('frame'); noiseSeed(77);
   image(paperG, 0, 0);
   drawWorld(T);

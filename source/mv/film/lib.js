@@ -7,8 +7,10 @@
 // ---------- loading ----------
 const _engineSetup = setup;
 setup = async function () {
-  const all = Object.values(SPRITES); let got = 0;
-  await Promise.all(all.map(async s => { s.img = await loadImage('film/sprites/' + s.file); if (window.onSpriteProgress) window.onSpriteProgress(++got, all.length); }));
+  const all = Object.values(SPRITES); let got = 0, next = 0;
+  const load1 = async s => { for (let k = 0; ; k++) { try { s.img = await loadImage(SPRITE_DIR + s.file); break; } catch (e) { if (k >= 3) throw e; await new Promise(r => setTimeout(r, 500 * (k + 1))); } }
+    if (window.onSpriteProgress) window.onSpriteProgress(++got, all.length); };
+  await Promise.all(Array.from({ length: 6 }, async () => { while (next < all.length) await load1(all[next++]); }));
   await _engineSetup();
 };
 
@@ -323,10 +325,10 @@ function aperture(r, cx = 960, cy = 540) {
   if (r < 5) { P(rectPts(-60, -60, W + 120, H + 120), { wash: BLADE, ink: null }); return; }
   const rot = -Math.PI / 2 + 1.1 * (1 - r / 1300), pts = [];
   for (let i = 0; i < 6; i++) pts.push([cx + r * Math.cos(rot + i * TAU / 6), cy + r * Math.sin(rot + i * TAU / 6)]);
-  irisShape(pts, BLADE); DIRTY = true;
+  irisShape(pts, BLADE, 1500); DIRTY = true;            // 1500 reaches past every corner; larger only costs fill
   for (let i = 0; i < 6; i++) {                        // each blade's edge runs on past the corner, under the next blade
     const a = pts[i], b = pts[(i + 1) % 6], d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, ux = (b[0] - a[0]) / d, uy = (b[1] - a[1]) / d;
-    inkLine([a, [b[0] + ux * 1500, b[1] + uy * 1500]], 2.2, BLADE_EDGE, 'ink', 0);
+    inkLine([a, [b[0] + ux * 1100, b[1] + uy * 1100]], 2.2, BLADE_EDGE, 'ink', 0);
   }
 }
 // How open the aperture is around a shutter release at time ts: it closes over `close` s, is shut exactly at ts, and
