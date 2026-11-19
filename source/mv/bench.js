@@ -8,6 +8,29 @@
   const wait = setInterval(async () => {
     if (!window.__mv) return; clearInterval(wait);
     const readyMs = performance.now() - t00, g = drawingContext, e = g.getExtension('WEBGL_debug_renderer_info');
+    // ?shot=<seconds>: no timing. Leave that one frame up (&fs=1: in the page's full-screen state) and report how the
+    // picture actually lies on this screen, again after every turn or resize.
+    if (Q.get('shot')) {
+      try { T = +Q.get('shot'); await redraw(); composite(T); } catch (x) {}
+      if (Q.get('fs')) await window.__mv.fullscreen();
+      const probe = css => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;' + css; document.body.appendChild(d); const r = d.getBoundingClientRect(); d.remove(); return [Math.round(r.width), Math.round(r.height)]; };
+      const rect = id => { const r = document.getElementById(id).getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(v => Math.round(v)); };
+      let n = 0;
+      const report = async () => {
+        const vv = window.visualViewport, r = { tag: (Q.get('tag') || 'shot') + '-' + (n++), ua: navigator.userAgent, lite: !!window.MV_LITE, full: window.__mv.full, nativeFs: !!(document.fullscreenElement || document.webkitFullscreenElement),
+          inner: [innerWidth, innerHeight], client: [document.documentElement.clientWidth, document.documentElement.clientHeight], visual: vv ? [Math.round(vv.width), Math.round(vv.height), Math.round(vv.offsetTop), vv.scale] : null,
+          screen: [screen.width, screen.height, devicePixelRatio], portrait: matchMedia('(orientation: portrait)').matches,
+          vh: probe('width:100vw;height:100vh')[1], dvh: probe('width:1px;height:100dvh')[1], svh: probe('width:1px;height:100svh')[1], lvh: probe('width:1px;height:100lvh')[1], vw: probe('width:100vw;height:1px')[0],
+          safe: probe('width:calc(env(safe-area-inset-left) + env(safe-area-inset-right));height:calc(env(safe-area-inset-top) + env(safe-area-inset-bottom))'),
+          supports: ['height:100dvh', 'aspect-ratio:16/9', 'width:min(1px,2px)', 'inset:0'].map(s => CSS.supports(s)),
+          stage: rect('stage'), out: rect('out'), bar: rect('bar'), canvas: [g.canvas.width, g.canvas.height, document.getElementById('out').width, document.getElementById('out').height] };
+        say(`视口 ${r.inner.join('×')}  画面 ${r.out[2]}×${r.out[3]} @ ${r.out[0]},${r.out[1]}  比例 ${(r.out[2] / r.out[3]).toFixed(3)}\n${r.portrait ? '竖' : '横'}  dvh ${r.dvh} vh ${r.vh}  全屏 ${r.full ? '是' : '否'}`);
+        window.__shot = r; try { await fetch('/report', { method: 'POST', body: JSON.stringify(r) }); } catch (x) {}
+      };
+      setTimeout(report, 700); let rt = 0; const again = () => { clearTimeout(rt); rt = setTimeout(report, 700); };
+      window.addEventListener('resize', again); window.addEventListener('orientationchange', again); if (window.visualViewport) visualViewport.addEventListener('resize', again);
+      return;
+    }
     const frames = [];
     for (let pass = 0; pass < 2; pass++) for (let t = 1; t < 183; t += 2) {            // pass 0 warms every picture up
       const a = performance.now(); let err = '';

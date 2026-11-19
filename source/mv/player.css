@@ -20,6 +20,8 @@ html, body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/
 @media (orientation: portrait) {
   .stage.is-full .screen { width: min(100vh, 177.78vw); width: min(100dvh, 177.78vw); transform: translate(-50%, -50%) rotate(90deg); }
 }
+/* player.js sets --full-h where the browser's own idea of the full-screen height cannot be trusted (see fitFull) */
+.stage.is-full.fit-h .screen { top: calc(var(--full-h) / 2); width: min(100vw, calc(var(--full-h) * 16 / 9)); }
 html.mv-full, html.mv-full body { overflow: hidden; }
 
 .loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--soft); font-size: 15px; letter-spacing: .1em; background: var(--paper); }

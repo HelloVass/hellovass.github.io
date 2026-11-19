@@ -17,7 +17,7 @@
   window.onSpriteProgress = (n, total) => { $('pct').textContent = Math.round(100 * n / total) + '%'; };
   const fail = msg => { loading.classList.add('is-error'); loading.textContent = msg; };
   window.addEventListener('error', e => { if (!ready) fail('画面没能加载出来，刷新一下试试。（' + (e.message || '未知错误') + '）'); });
-  window.addEventListener('unhandledrejection', () => { if (!ready) fail('有图片没加载出来，刷新一下试试。'); });
+  window.addEventListener('unhandledrejection', e => { if (!ready) fail(/webgl/i.test(String(e.reason && e.reason.message)) ? '这个浏览器没能打开 WebGL，画不出这支 MV，换个浏览器试试。' : '有图片没加载出来，刷新一下试试。'); });
 
   // Paint the frame for time t. Only one paint runs at a time; a request made meanwhile replaces any waiting one.
   async function paint(t) {
@@ -115,9 +115,18 @@
   const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
   const nativeFs = stage.requestFullscreen || stage.webkitRequestFullscreen;
   let full = false, native = false;
+  // Android Chrome can report a full-screen viewport taller than the glass (seen: 436 px on a 411 px screen), which pushes
+  // the bottom of the picture, with the place tags and the controls, off the screen. The screen's own short side, read
+  // while not in full screen, is the truth there: the picture is fitted into whichever of the two is smaller.
+  const android = /Android/i.test(navigator.userAgent); let shortSide = Math.min(screen.width, screen.height);
+  function fitFull() {
+    if (!fsEl()) shortSide = Math.min(screen.width, screen.height);
+    const h = full && native && android && innerWidth > innerHeight ? Math.min(innerHeight, shortSide - 1) : 0;
+    stage.classList.toggle('fit-h', h > 0); if (h) stage.style.setProperty('--full-h', h + 'px');
+  }
   function setFull(on) {
     full = on; stage.classList.toggle('is-full', on); document.documentElement.classList.toggle('mv-full', on);
-    $('full').setAttribute('aria-label', on ? '退出全屏' : '全屏'); wake();
+    $('full').setAttribute('aria-label', on ? '退出全屏' : '全屏'); fitFull(); wake();
   }
   async function fullscreen() {
     if (!full) {
@@ -125,6 +134,7 @@
       if (nativeFs) {
         try { await nativeFs.call(stage); native = true; } catch (e) { native = false; }
         if (native) { try { await screen.orientation.lock('landscape'); } catch (e) {} }
+        fitFull();
       }
     } else {
       setFull(false);
@@ -133,8 +143,9 @@
       native = false;
     }
   }
-  const onFsChange = () => { if (native && !fsEl() && full) { native = false; setFull(false); } };   // left with Esc or the back gesture
+  const onFsChange = () => { if (native && !fsEl() && full) { native = false; setFull(false); } fitFull(); };   // left with Esc or the back gesture
   document.addEventListener('fullscreenchange', onFsChange); document.addEventListener('webkitfullscreenchange', onFsChange);
+  window.addEventListener('resize', fitFull); window.addEventListener('orientationchange', () => setTimeout(fitFull, 300));
   $('full').addEventListener('click', fullscreen); $('out').addEventListener('dblclick', fullscreen);
   stage.addEventListener('pointermove', wake); stage.addEventListener('pointerdown', wake);
   document.addEventListener('keydown', e => {
